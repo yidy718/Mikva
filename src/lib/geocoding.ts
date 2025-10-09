@@ -1,5 +1,3 @@
-import { MapboxGeocoding } from '@mapbox/mapbox-sdk/services/geocoding'
-
 export interface GeocodingResult {
   id: string
   place_name: string
@@ -25,17 +23,14 @@ export interface GeocodingOptions {
 }
 
 class GeocodingService {
-  private geocoding: MapboxGeocoding
+  private mapboxToken: string
 
   constructor() {
-    const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-    if (!mapboxToken) {
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+    if (!token) {
       throw new Error('Mapbox token is required')
     }
-    
-    this.geocoding = new MapboxGeocoding({
-      accessToken: mapboxToken
-    })
+    this.mapboxToken = token
   }
 
   async searchAddress(
@@ -43,23 +38,41 @@ class GeocodingService {
     options: GeocodingOptions = {}
   ): Promise<GeocodingResult[]> {
     try {
-      const response = await this.geocoding
-        .forwardGeocode({
-          query,
-          countries: options.country ? [options.country] : undefined,
-          proximity: options.proximity,
-          bbox: options.bbox,
-          types: options.types,
-          limit: options.limit || 5,
-          language: ['en'], // Default to English for worldwide support
-        })
-        .send()
+      const params = new URLSearchParams({
+        access_token: this.mapboxToken,
+        q: query,
+        limit: (options.limit || 5).toString(),
+        language: 'en',
+      })
 
-      return response.body.features.map((feature) => ({
+      if (options.country) {
+        params.append('country', options.country)
+      }
+      if (options.proximity) {
+        params.append('proximity', `${options.proximity[0]},${options.proximity[1]}`)
+      }
+      if (options.bbox) {
+        params.append('bbox', options.bbox.join(','))
+      }
+      if (options.types) {
+        params.append('types', options.types.join(','))
+      }
+
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?${params}`
+      )
+
+      if (!response.ok) {
+        throw new Error(`Geocoding API error: ${response.status}`)
+      }
+
+      const data = await response.json()
+      
+      return data.features.map((feature: any) => ({
         id: feature.id,
         place_name: feature.place_name,
         center: feature.center as [number, number],
-        context: feature.context?.map((ctx) => ({
+        context: feature.context?.map((ctx: any) => ({
           id: ctx.id,
           text: ctx.text,
           short_code: ctx.short_code,
@@ -81,24 +94,32 @@ class GeocodingService {
     latitude: number
   ): Promise<GeocodingResult | null> {
     try {
-      const response = await this.geocoding
-        .reverseGeocode({
-          query: [longitude, latitude],
-          limit: 1,
-          language: ['en'], // Default to English for worldwide support
-        })
-        .send()
+      const params = new URLSearchParams({
+        access_token: this.mapboxToken,
+        limit: '1',
+        language: 'en',
+      })
 
-      if (response.body.features.length === 0) {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?${params}`
+      )
+
+      if (!response.ok) {
+        throw new Error(`Reverse geocoding API error: ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      if (data.features.length === 0) {
         return null
       }
 
-      const feature = response.body.features[0]
+      const feature = data.features[0]
       return {
         id: feature.id,
         place_name: feature.place_name,
         center: feature.center as [number, number],
-        context: feature.context?.map((ctx) => ({
+        context: feature.context?.map((ctx: any) => ({
           id: ctx.id,
           text: ctx.text,
           short_code: ctx.short_code,
