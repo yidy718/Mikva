@@ -4,7 +4,7 @@ import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { MapPin, Phone, Clock, Users, Star } from 'lucide-react'
+import { MapPin, Phone, Clock, Users } from 'lucide-react'
 import { Mikvah } from '@/lib/supabase/database.types'
 import { useTranslation } from 'react-i18next'
 
@@ -13,6 +13,9 @@ interface MikvahListViewProps {
   onMikvahSelect: (mikvah: Mikvah) => void
   selectedMikvahId?: string
 }
+
+// Extended type for mikvahs with distance
+type MikvahWithDistance = Mikvah & { distance?: number }
 
 export function MikvahListView({ mikvahs, onMikvahSelect, selectedMikvahId }: MikvahListViewProps) {
   const { t } = useTranslation()
@@ -46,7 +49,7 @@ export function MikvahListView({ mikvahs, onMikvahSelect, selectedMikvahId }: Mi
       </div>
       
       <div className="space-y-3 max-h-96 overflow-y-auto">
-        {mikvahs.map((mikvah) => (
+        {mikvahs.map((mikvah: MikvahWithDistance) => (
           <Card 
             key={mikvah.id} 
             className={`cursor-pointer transition-all hover:shadow-md ${
@@ -55,17 +58,9 @@ export function MikvahListView({ mikvahs, onMikvahSelect, selectedMikvahId }: Mi
             onClick={() => onMikvahSelect(mikvah)}
           >
             <CardHeader className="pb-2">
-              <div className="flex items-start justify-between">
-                <CardTitle className="text-base line-clamp-2">
-                  {mikvah.name_en || mikvah.name_he}
-                </CardTitle>
-                {mikvah.rating && (
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                    <span>{mikvah.rating.toFixed(1)}</span>
-                  </div>
-                )}
-              </div>
+              <CardTitle className="text-base line-clamp-2">
+                {mikvah.name_en || mikvah.name_he}
+              </CardTitle>
             </CardHeader>
             
             <CardContent className="pt-0">
@@ -85,10 +80,14 @@ export function MikvahListView({ mikvahs, onMikvahSelect, selectedMikvahId }: Mi
                 )}
 
                 {/* Hours */}
-                {mikvah.hours && (
+                {mikvah.hours_of_operation && (
                   <div className="flex items-start gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4 mt-0.5" />
-                    <span className="line-clamp-1">{mikvah.hours}</span>
+                    <span className="line-clamp-1">
+                      {typeof mikvah.hours_of_operation === 'string'
+                        ? mikvah.hours_of_operation
+                        : 'See details'}
+                    </span>
                   </div>
                 )}
 
@@ -106,13 +105,10 @@ export function MikvahListView({ mikvahs, onMikvahSelect, selectedMikvahId }: Mi
                 </div>
 
                 {/* Additional Info */}
-                {(mikvah.women_only || mikvah.separate_hours) && (
+                {mikvah.mikvah_type && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Users className="h-3 w-3" />
-                    <span>
-                      {mikvah.women_only && t('mikvah.womenOnly')}
-                      {mikvah.separate_hours && t('mikvah.separateHours')}
-                    </span>
+                    <span>{getMikvahTypeLabel(mikvah.mikvah_type)}</span>
                   </div>
                 )}
               </div>

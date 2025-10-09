@@ -5,18 +5,18 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { 
-  MapPin, 
-  Phone, 
-  Clock, 
-  Users, 
-  Star, 
-  Edit, 
-  ExternalLink,
+import {
+  MapPin,
+  Phone,
+  Clock,
+  Users,
   Navigation,
   MessageSquare
 } from 'lucide-react'
 import { Mikvah } from '@/lib/supabase/database.types'
+
+// Extended type for mikvahs with distance
+type MikvahWithDistance = Mikvah & { distance?: number }
 import { useTranslation } from 'react-i18next'
 import { CorrectionForm } from './CorrectionForm'
 
@@ -32,6 +32,8 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
   const [showCorrectionForm, setShowCorrectionForm] = useState(false)
 
   if (!mikvah) return null
+
+  const mikvahWithDistance = mikvah as MikvahWithDistance
 
   const getMikvahTypeLabel = (type: string) => {
     switch (type) {
@@ -65,14 +67,8 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <span>{mikvah.name_en || mikvah.name_he}</span>
-            {mikvah.rating && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span>{mikvah.rating.toFixed(1)}</span>
-              </div>
-            )}
+          <DialogTitle>
+            {mikvah.name_en || mikvah.name_he}
           </DialogTitle>
         </DialogHeader>
 
@@ -86,9 +82,9 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
                   <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div>
                     <p className="font-medium">{mikvah.address}</p>
-                    {mikvah.distance && (
+                    {mikvahWithDistance.distance && (
                       <p className="text-sm text-muted-foreground">
-                        {formatDistance(mikvah.distance)} {t('map.away')}
+                        {formatDistance(mikvahWithDistance.distance)} {t('map.away')}
                       </p>
                     )}
                   </div>
@@ -111,12 +107,16 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
                 )}
 
                 {/* Hours */}
-                {mikvah.hours && (
+                {mikvah.hours_of_operation && (
                   <div className="flex items-start gap-3">
                     <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">{t('mikvah.hours')}</p>
-                      <p className="text-sm text-muted-foreground">{mikvah.hours}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {typeof mikvah.hours_of_operation === 'string'
+                          ? mikvah.hours_of_operation
+                          : JSON.stringify(mikvah.hours_of_operation)}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -136,19 +136,16 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
           </Card>
 
           {/* Additional Details */}
-          {(mikvah.description_en || mikvah.description_he || mikvah.notes) && (
+          {(mikvah.directions_parking || mikvah.accessibility_info) && (
             <Card>
               <CardContent className="pt-6">
                 <h4 className="font-medium mb-3">{t('mikvah.details')}</h4>
                 <div className="space-y-2 text-sm text-muted-foreground">
-                  {mikvah.description_en && (
-                    <p><strong>{t('mikvah.descriptionEn')}:</strong> {mikvah.description_en}</p>
+                  {mikvah.directions_parking && (
+                    <p><strong>{t('mikvah.parking')}:</strong> {mikvah.directions_parking}</p>
                   )}
-                  {mikvah.description_he && (
-                    <p><strong>{t('mikvah.descriptionHe')}:</strong> {mikvah.description_he}</p>
-                  )}
-                  {mikvah.notes && (
-                    <p><strong>{t('mikvah.notes')}:</strong> {mikvah.notes}</p>
+                  {mikvah.accessibility_info && (
+                    <p><strong>{t('mikvah.accessibility')}:</strong> {mikvah.accessibility_info}</p>
                   )}
                 </div>
               </CardContent>

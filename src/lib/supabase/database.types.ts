@@ -120,3 +120,9 @@ export interface Database {
     }
   }
 }
+
+// Export commonly used types
+export type Mikvah = Database['public']['Tables']['mikvahs']['Row']
+export type MikvahInsert = Database['public']['Tables']['mikvahs']['Insert']
+export type MikvahUpdate = Database['public']['Tables']['mikvahs']['Update']
+export type UserRoleRow = Database['public']['Tables']['user_roles']['Row']
