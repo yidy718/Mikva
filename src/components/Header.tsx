@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { MapPin, LogOut, User, Globe } from 'lucide-react'
+import { MapPin, LogOut, User, Globe, Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
@@ -15,6 +16,7 @@ export function Header() {
   const pathname = usePathname()
   const [user, setUser] = useState<any>(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -64,10 +66,11 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         <Link href="/map" className="flex items-center gap-2 font-semibold">
           <MapPin className="h-6 w-6" />
-          <span>{t('map.title')}</span>
+          <span className="hidden sm:inline">{t('map.title')}</span>
         </Link>
 
-        <nav className="flex items-center gap-4">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-4">
           <Link
             href="/map"
             className={cn(
@@ -108,20 +111,106 @@ export function Header() {
 
           <Button variant="ghost" size="icon" onClick={toggleLanguage}>
             <Globe className="h-5 w-5" />
+            <span className="sr-only">Toggle language</span>
           </Button>
 
           {user ? (
             <Button variant="ghost" size="icon" onClick={handleLogout}>
               <LogOut className="h-5 w-5" />
+              <span className="sr-only">Logout</span>
             </Button>
           ) : (
             <Link href="/login">
               <Button variant="ghost" size="icon">
                 <User className="h-5 w-5" />
+                <span className="sr-only">Login</span>
               </Button>
             </Link>
           )}
         </nav>
+
+        {/* Mobile Menu */}
+        <div className="md:hidden flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={toggleLanguage}>
+            <Globe className="h-5 w-5" />
+            <span className="sr-only">Toggle language</span>
+          </Button>
+
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <SheetHeader>
+                <SheetTitle>{t('map.title')}</SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col gap-4 mt-8">
+                <Link
+                  href="/map"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    'text-lg font-medium transition-colors hover:text-primary py-2',
+                    pathname === '/map' ? 'text-foreground' : 'text-muted-foreground'
+                  )}
+                >
+                  {t('nav.map')}
+                </Link>
+
+                {user && (
+                  <Link
+                    href="/submit"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={cn(
+                      'text-lg font-medium transition-colors hover:text-primary py-2',
+                      pathname === '/submit' ? 'text-foreground' : 'text-muted-foreground'
+                    )}
+                  >
+                    {t('nav.submit')}
+                  </Link>
+                )}
+
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={cn(
+                      'text-lg font-medium transition-colors hover:text-primary py-2',
+                      pathname === '/admin' ? 'text-foreground' : 'text-muted-foreground'
+                    )}
+                  >
+                    {t('nav.admin')}
+                  </Link>
+                )}
+
+                <div className="border-t pt-4 mt-4">
+                  {user ? (
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        handleLogout()
+                        setMobileMenuOpen(false)
+                      }}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      {t('nav.logout')}
+                    </Button>
+                  ) : (
+                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full justify-start">
+                        <User className="h-4 w-4 mr-2" />
+                        {t('nav.login')}
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   )

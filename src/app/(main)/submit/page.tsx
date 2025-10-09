@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
+import { FileText, MapPin as MapPinIcon, Info, Image as ImageIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { mikvahSubmissionSchema, type MikvahSubmissionData } from '@/lib/validations/mikvah'
 import { Button } from '@/components/ui/button'
@@ -18,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AddressInput } from '@/components/ui/address-input'
 import { type GeocodingResult } from '@/lib/geocoding'
 import { Spinner } from '@/components/ui/spinner'
+import { ProgressSteps } from '@/components/ui/progress-steps'
 
 const MapView = dynamic(
   () => import('@/components/map/MapView').then((mod) => mod.MapView),
@@ -136,20 +138,46 @@ export default function SubmitPage() {
     }
   }
 
+  const steps = [
+    {
+      label: t('submit.basicInfo') || 'Basic Info',
+      icon: <FileText className="h-5 w-5" />,
+      description: t('submit.basicInfoDesc') || 'Name and contact',
+    },
+    {
+      label: t('submit.location') || 'Location',
+      icon: <MapPinIcon className="h-5 w-5" />,
+      description: t('submit.locationDesc') || 'Pin on map',
+    },
+    {
+      label: t('submit.details') || 'Details',
+      icon: <Info className="h-5 w-5" />,
+      description: t('submit.detailsDesc') || 'Additional info',
+    },
+    {
+      label: t('submit.photos') || 'Photos',
+      icon: <ImageIcon className="h-5 w-5" />,
+      description: t('submit.photosDesc') || 'Add images',
+    },
+  ]
+
   return (
     <div className="container max-w-4xl py-8">
       <Card>
         <CardHeader>
           <CardTitle>{t('submit.title')}</CardTitle>
           <CardDescription>
-            {t('submit.step1')} {step}/4
+            {t('submit.description') || 'Submit a new mikvah location'}
           </CardDescription>
+          <div className="mt-6">
+            <ProgressSteps steps={steps} currentStep={step} />
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Step 1: Basic Information */}
             {step === 1 && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
                 <div className="space-y-2">
                   <Label htmlFor="name_en">{t('submit.nameEn')}</Label>
                   <Input id="name_en" {...register('name_en')} />
@@ -203,7 +231,7 @@ export default function SubmitPage() {
 
             {/* Step 2: Location */}
             {step === 2 && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
                 <p className="text-sm text-muted-foreground">{t('submit.selectLocation')}</p>
                 <div className="h-[400px] rounded-lg overflow-hidden border">
                   <MapView
@@ -227,7 +255,7 @@ export default function SubmitPage() {
 
             {/* Step 3: Details */}
             {step === 3 && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
                 <div className="space-y-2">
                   <Label htmlFor="price_info">{t('submit.price')}</Label>
                   <Input id="price_info" {...register('price_info')} />
@@ -247,7 +275,7 @@ export default function SubmitPage() {
 
             {/* Step 4: Photos */}
             {step === 4 && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
                 <div className="space-y-2">
                   <Label>{t('submit.uploadPhotos')}</Label>
                   <Input
