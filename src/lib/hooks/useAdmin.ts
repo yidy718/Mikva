@@ -43,6 +43,29 @@ export const useAdminUsers = () => {
   })
 }
 
+export const useAdminReviews = () => {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: ['admin', 'reviews'],
+    queryFn: async (): Promise<any[]> => {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*, mikvahs(name_en, name_he)')
+        .eq('is_approved', false)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        throw new Error(`Failed to fetch reviews: ${error.message}`)
+      }
+
+      return data || []
+    },
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 5 * 60 * 1000,
+  })
+}
+
 export const useApproveMikvah = () => {
   const supabase = createClient()
   const queryClient = useQueryClient()
@@ -140,6 +163,58 @@ export const useUpdateUserRole = () => {
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to update user role')
+    },
+  })
+}
+
+export const useApproveReview = () => {
+  const supabase = createClient()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (reviewId: string) => {
+      const { error } = await supabase
+        .from('reviews')
+        .update({ is_approved: true })
+        .eq('id', reviewId)
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'reviews'] })
+      toast.success('Review approved successfully')
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to approve review')
+    },
+  })
+}
+
+export const useDeleteReview = () => {
+  const supabase = createClient()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (reviewId: string) => {
+      if (!confirm('Are you sure you want to delete this review?')) {
+        throw new Error('User cancelled')
+      }
+
+      const { error } = await supabase
+        .from('reviews')
+        .delete()
+        .eq('id', reviewId)
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'reviews'] })
+      toast.success('Review deleted successfully')
+    },
+    onError: (error: any) => {
+      if (error.message !== 'User cancelled') {
+        toast.error(error.message || 'Failed to delete review')
+      }
     },
   })
 }
