@@ -14,6 +14,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AddressInput } from '@/components/ui/address-input'
+import { type GeocodingResult } from '@/lib/geocoding'
 
 const MapView = dynamic(
   () => import('@/components/map/MapView').then((mod) => mod.MapView),
@@ -27,6 +29,7 @@ export default function SubmitPage() {
   const [selectedLocation, setSelectedLocation] = useState<{ lng: number; lat: number } | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [photos, setPhotos] = useState<File[]>([])
+  const [address, setAddress] = useState('')
   const supabase = createClient()
 
   const {
@@ -48,6 +51,15 @@ export default function SubmitPage() {
     setSelectedLocation({ lng, lat })
     setValue('longitude', lng)
     setValue('latitude', lat)
+  }
+
+  const handleLocationSelect = (result: GeocodingResult) => {
+    const [lng, lat] = result.center
+    setSelectedLocation({ lng, lat })
+    setValue('longitude', lng)
+    setValue('latitude', lat)
+    setValue('address', result.place_name)
+    setAddress(result.place_name)
   }
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,11 +147,17 @@ export default function SubmitPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="address">{t('submit.address')}</Label>
-                  <Input id="address" {...register('address')} />
-                  {errors.address && (
-                    <p className="text-sm text-destructive">{errors.address.message}</p>
-                  )}
+                  <AddressInput
+                    value={address}
+                    onChange={(value) => {
+                      setAddress(value)
+                      setValue('address', value)
+                    }}
+                    onLocationSelect={handleLocationSelect}
+                    label={t('submit.address')}
+                    placeholder="Enter mikvah address worldwide..."
+                    error={errors.address?.message}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -175,12 +193,17 @@ export default function SubmitPage() {
                     mikvahs={[]}
                     onMapClick={handleMapClick}
                     selectedLocation={selectedLocation || undefined}
+                    showSearch={true}
+                    onLocationSelect={handleLocationSelect}
                   />
                 </div>
                 {selectedLocation && (
-                  <p className="text-sm">
-                    Selected: {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
-                  </p>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Selected Location:</p>
+                    <p className="text-sm text-muted-foreground">
+                      {address || `${selectedLocation.lat.toFixed(6)}, ${selectedLocation.lng.toFixed(6)}`}
+                    </p>
+                  </div>
                 )}
               </div>
             )}

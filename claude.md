@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**Mikvah Locator** is a Next.js application for finding and submitting mikvah locations with interactive maps, bilingual support (Hebrew/English), and comprehensive admin features.
+**Mikvah Locator** is a Next.js application for finding and submitting mikvah locations worldwide with interactive maps, bilingual support (Hebrew/English), and comprehensive admin features.
 
 ## 🚀 Quick Start
 
@@ -108,6 +108,7 @@ Supports Hebrew (RTL) and English with:
 - Language detection and persistence
 - RTL layout support
 - Complete translation coverage
+- Worldwide address search in multiple languages
 
 ## 🗺️ Map Features
 
@@ -115,6 +116,8 @@ Supports Hebrew (RTL) and English with:
 - Marker clustering with Supercluster
 - Location selection for submissions
 - Geolocation support
+- Worldwide address search and suggestions
+- Global map coverage
 
 ## 🔐 Authentication & Security
 
@@ -126,11 +129,12 @@ Supports Hebrew (RTL) and English with:
 ## 📱 Features
 
 ### User Features
-- Browse mikvahs on interactive map
-- Submit new mikvah locations
+- Browse mikvahs worldwide on interactive map
+- Submit new mikvah locations anywhere
 - Upload photos (max 5)
 - Bilingual interface
 - Mobile-responsive design
+- Worldwide address search
 
 ### Admin Features
 - Review pending submissions

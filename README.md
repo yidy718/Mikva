@@ -1,6 +1,6 @@
 # Mikvah Locator
 
-A modern web application for finding and submitting mikvah locations with interactive maps, bilingual support (Hebrew/English), and comprehensive admin features.
+A modern web application for finding and submitting mikvah locations worldwide with interactive maps, bilingual support (Hebrew/English), and comprehensive admin features.
 
 ## Features
 
@@ -13,16 +13,17 @@ A modern web application for finding and submitting mikvah locations with intera
 - Mobile-first responsive design
 - Dark mode support
 - Photo upload and management
-- Search and filter capabilities
+- Worldwide address search and suggestions
 - Geolocation and distance calculation
 
 ### User Features
-- Browse mikvahs on interactive map
+- Browse mikvahs worldwide on interactive map
 - View detailed information for each mikvah
-- Submit new mikvah locations
+- Submit new mikvah locations anywhere in the world
 - Upload up to 5 photos per submission
 - Get directions via Google Maps
 - Share mikvah information
+- Search for locations worldwide with address suggestions
 
 ### Admin Features
 - Review and approve/reject submissions

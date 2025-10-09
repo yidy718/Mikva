@@ -49,7 +49,10 @@ export default function MapPage() {
 
   return (
     <div className="h-[calc(100vh-4rem)] w-full">
-      <MapView mikvahs={mikvahs} />
+      <MapView 
+        mikvahs={mikvahs} 
+        showSearch={true}
+      />
     </div>
   )
 }

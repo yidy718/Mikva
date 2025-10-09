@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import Map, { Marker, Popup, NavigationControl, GeolocateControl } from 'react-map-gl'
 import type { MapRef } from 'react-map-gl'
 import Supercluster from 'supercluster'
-import { MapPin } from 'lucide-react'
+import { MapPin, Search, X } from 'lucide-react'
 import { Database } from '@/lib/supabase/database.types'
+import { geocodingService, type GeocodingResult } from '@/lib/geocoding'
+import { AddressInput } from '@/components/ui/address-input'
 
 type Mikvah = Database['public']['Tables']['mikvahs']['Row']
 
@@ -14,6 +16,8 @@ interface MapViewProps {
   onMikvahClick?: (mikvah: Mikvah) => void
   onMapClick?: (lng: number, lat: number) => void
   selectedLocation?: { lng: number; lat: number }
+  showSearch?: boolean
+  onLocationSelect?: (result: GeocodingResult) => void
 }
 
 export function MapView({
@@ -21,15 +25,19 @@ export function MapView({
   onMikvahClick,
   onMapClick,
   selectedLocation,
+  showSearch = false,
+  onLocationSelect,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null)
   const [viewState, setViewState] = useState({
-    longitude: 34.7818, // Israel center
-    latitude: 32.0853,
-    zoom: 8,
+    longitude: 0, // World center
+    latitude: 20,
+    zoom: 2,
   })
   const [selectedMikvah, setSelectedMikvah] = useState<Mikvah | null>(null)
   const [clusters, setClusters] = useState<any[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
 
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
@@ -100,22 +108,83 @@ export function MapView({
     }
   }
 
-  return (
-    <Map
-      ref={mapRef}
-      {...viewState}
-      onMove={(evt) => setViewState(evt.viewState)}
-      onClick={(e) => {
-        if (onMapClick) {
-          onMapClick(e.lngLat.lng, e.lngLat.lat)
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) return
+
+    setIsSearching(true)
+    try {
+      const results = await geocodingService.searchAddress(query, {
+        proximity: [viewState.longitude, viewState.latitude],
+        types: ['address', 'poi'],
+        limit: 1,
+      })
+
+      if (results.length > 0) {
+        const result = results[0]
+        const [lng, lat] = result.center
+        
+        setViewState({
+          longitude: lng,
+          latitude: lat,
+          zoom: 15,
+        })
+
+        if (onLocationSelect) {
+          onLocationSelect(result)
         }
-      }}
-      mapStyle="mapbox://styles/mapbox/streets-v12"
-      mapboxAccessToken={mapboxToken}
-      style={{ width: '100%', height: '100%' }}
-    >
-      <NavigationControl position="top-right" />
-      <GeolocateControl position="top-right" />
+      }
+    } catch (error) {
+      console.error('Search error:', error)
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const handleLocationSelect = (result: GeocodingResult) => {
+    const [lng, lat] = result.center
+    
+    setViewState({
+      longitude: lng,
+      latitude: lat,
+      zoom: 15,
+    })
+
+    if (onLocationSelect) {
+      onLocationSelect(result)
+    }
+  }
+
+  return (
+    <div className="relative w-full h-full">
+      {showSearch && (
+        <div className="absolute top-4 left-4 right-4 z-10">
+          <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4">
+            <AddressInput
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onLocationSelect={handleLocationSelect}
+              placeholder="Search for a location worldwide..."
+              proximity={[viewState.longitude, viewState.latitude]}
+            />
+          </div>
+        </div>
+      )}
+
+      <Map
+        ref={mapRef}
+        {...viewState}
+        onMove={(evt) => setViewState(evt.viewState)}
+        onClick={(e) => {
+          if (onMapClick) {
+            onMapClick(e.lngLat.lng, e.lngLat.lat)
+          }
+        }}
+        mapStyle="mapbox://styles/mapbox/streets-v12"
+        mapboxAccessToken={mapboxToken}
+        style={{ width: '100%', height: '100%' }}
+      >
+        <NavigationControl position="top-right" />
+        <GeolocateControl position="top-right" />
 
       {/* Render clusters and individual markers */}
       {clusters.map((cluster) => {
@@ -200,6 +269,7 @@ export function MapView({
           </div>
         </Popup>
       )}
-    </Map>
+      </Map>
+    </div>
   )
 }

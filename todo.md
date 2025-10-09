@@ -55,7 +55,7 @@
 - [ ] Implement dark mode toggle
 - [ ] Add animation transitions
 - [ ] Improve mobile responsiveness
-- [ ] Add search and filtering capabilities
+- [x] Add search and filtering capabilities
 - [ ] Implement photo gallery modal
 
 ### Database & Backend
@@ -156,6 +156,12 @@
 - [x] Bilingual support (Hebrew/English)
 - [x] RLS security policies
 - [x] Route protection middleware
+
+### ✅ Recent Improvements
+- [x] Address suggestion system with Mapbox Geocoding
+- [x] Search functionality on map
+- [x] Enhanced location selection in submission form
+- [x] Improved user experience with autocomplete
 
 ## 📝 Notes
 
