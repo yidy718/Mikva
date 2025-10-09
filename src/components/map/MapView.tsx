@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { MikvahListView } from './MikvahListView'
 import { MikvahDetailsModal } from './MikvahDetailsModal'
+import { MikvahMarker, ClusterMarker } from './MikvahMarker'
 
 type Mikvah = Database['public']['Tables']['mikvahs']['Row']
 
@@ -44,6 +45,7 @@ export function MapView({
   const [isSearching, setIsSearching] = useState(false)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map')
+  const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null)
 
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
@@ -286,6 +288,8 @@ export function MapView({
         const { cluster: isCluster, point_count: pointCount } = cluster.properties
 
         if (isCluster) {
+          const size = 30 + Math.min((pointCount / mikvahs.length) * 30, 40)
+
           return (
             <Marker
               key={`cluster-${cluster.id}`}
@@ -296,22 +300,14 @@ export function MapView({
                 handleClusterClick(cluster.id, longitude, latitude)
               }}
             >
-              <div className="relative cursor-pointer">
-                <div
-                  className="flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold"
-                  style={{
-                    width: `${30 + (pointCount / mikvahs.length) * 20}px`,
-                    height: `${30 + (pointCount / mikvahs.length) * 20}px`,
-                  }}
-                >
-                  {pointCount}
-                </div>
-              </div>
+              <ClusterMarker count={pointCount} size={size} />
             </Marker>
           )
         }
 
         const mikvah = cluster.properties.mikvah
+        const isSelected = selectedMikvah?.id === mikvah.id
+        const isHovered = hoveredMarkerId === mikvah.id
 
         return (
           <Marker
@@ -323,8 +319,16 @@ export function MapView({
               handleMarkerClick(mikvah)
             }}
           >
-            <div className="cursor-pointer transform hover:scale-110 transition-transform">
-              <MapPin className="h-8 w-8 text-primary fill-primary/20" />
+            <div
+              className="cursor-pointer"
+              onMouseEnter={() => setHoveredMarkerId(mikvah.id)}
+              onMouseLeave={() => setHoveredMarkerId(null)}
+            >
+              <MikvahMarker
+                type={mikvah.mikvah_type}
+                isSelected={isSelected}
+                isHovered={isHovered}
+              />
             </div>
           </Marker>
         )
@@ -337,7 +341,7 @@ export function MapView({
           latitude={selectedLocation.lat}
         >
           <div className="animate-bounce">
-            <MapPin className="h-10 w-10 text-destructive fill-destructive/20" />
+            <MikvahMarker type="separate_hours" isSelected={true} />
           </div>
         </Marker>
       )}
