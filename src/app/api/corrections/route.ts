@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = correctionSchema.parse(body)
 
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Insert the correction
     const { data, error } = await supabase
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { searchParams } = new URL(request.url)
     const mikvahId = searchParams.get('mikvah_id')
     const status = searchParams.get('status') || 'pending'
