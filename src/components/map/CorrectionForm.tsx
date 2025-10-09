@@ -15,7 +15,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Mikvah } from '@/lib/supabase/database.types'
 import { useTranslation } from 'react-i18next'
-import { CheckCircle, AlertCircle } from 'lucide-react'
+import { CheckCircle, AlertCircle, ImagePlus, X } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 const correctionSchema = z.object({
   type: z.enum(['incorrect_info', 'missing_info', 'outdated_info', 'other']),
@@ -38,6 +39,8 @@ export function CorrectionForm({ mikvah, isOpen, onClose }: CorrectionFormProps)
   const { t } = useTranslation()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [photos, setPhotos] = useState<File[]>([])
+  const supabase = createClient()
 
   const {
     register,
@@ -58,6 +61,39 @@ export function CorrectionForm({ mikvah, isOpen, onClose }: CorrectionFormProps)
   })
 
   const watchedType = watch('type')
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newPhotos = Array.from(e.target.files).slice(0, 5 - photos.length)
+      setPhotos([...photos, ...newPhotos])
+    }
+  }
+
+  const removePhoto = (index: number) => {
+    setPhotos(photos.filter((_, i) => i !== index))
+  }
+
+  const uploadPhotos = async (userId: string): Promise<string[]> => {
+    const uploadedUrls: string[] = []
+
+    for (const photo of photos) {
+      const fileName = `${userId}/${Date.now()}-${photo.name}`
+      const { data, error } = await supabase.storage
+        .from('mikvah-photos')
+        .upload(fileName, photo)
+
+      if (error) {
+        console.error('Error uploading photo:', error)
+      } else {
+        const { data: { publicUrl } } = supabase.storage
+          .from('mikvah-photos')
+          .getPublicUrl(data.path)
+        uploadedUrls.push(publicUrl)
+      }
+    }
+
+    return uploadedUrls
+  }
 
   const correctionTypes = [
     { value: 'incorrect_info', label: t('correction.types.incorrectInfo') },
@@ -82,6 +118,15 @@ export function CorrectionForm({ mikvah, isOpen, onClose }: CorrectionFormProps)
     setSubmitStatus('idle')
 
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+
+      // Upload photos if any
+      let photoUrls: string[] = []
+      if (photos.length > 0 && user) {
+        photoUrls = await uploadPhotos(user.id)
+      }
+
       const response = await fetch('/api/corrections', {
         method: 'POST',
         headers: {
@@ -90,15 +135,19 @@ export function CorrectionForm({ mikvah, isOpen, onClose }: CorrectionFormProps)
         body: JSON.stringify({
           mikvah_id: mikvah.id,
           ...data,
+          photo_urls: photoUrls.length > 0 ? photoUrls : undefined,
         }),
       })
 
       if (response.ok) {
         setSubmitStatus('success')
         toast.success('Correction submitted successfully', {
-          description: 'Thank you for helping us improve!'
+          description: photos.length > 0
+            ? `Thank you! Your correction with ${photos.length} photo(s) has been submitted.`
+            : 'Thank you for helping us improve!'
         })
         reset()
+        setPhotos([])
         setTimeout(() => {
           onClose()
           setSubmitStatus('idle')
@@ -240,6 +289,51 @@ export function CorrectionForm({ mikvah, isOpen, onClose }: CorrectionFormProps)
               <p className="text-sm text-muted-foreground">
                 {t('correction.contactEmailHelp')}
               </p>
+            </div>
+
+            {/* Photo Upload */}
+            <div className="space-y-2">
+              <Label htmlFor="photos">
+                {t('correction.photos') || 'Add Photos'} (Optional)
+              </Label>
+              <div className="space-y-2">
+                <Input
+                  id="photos"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handlePhotoUpload}
+                  disabled={photos.length >= 5}
+                  className="cursor-pointer"
+                />
+                <p className="text-sm text-muted-foreground">
+                  {t('correction.photosHelp') || `Upload up to 5 photos (${photos.length}/5)`}
+                </p>
+              </div>
+
+              {/* Photo Previews */}
+              {photos.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  {photos.map((photo, index) => (
+                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                      <img
+                        src={URL.createObjectURL(photo)}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-1 right-1 h-6 w-6 p-0"
+                        onClick={() => removePhoto(index)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Submit Status */}

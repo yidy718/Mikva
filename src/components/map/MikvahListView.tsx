@@ -1,12 +1,14 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { MapPin, Phone, Clock, Users } from 'lucide-react'
 import { Mikvah } from '@/lib/supabase/database.types'
 import { useTranslation } from 'react-i18next'
+import { createClient } from '@/lib/supabase/client'
+import { StarRating } from '@/components/ui/star-rating'
 
 interface MikvahListViewProps {
   mikvahs: Mikvah[]
@@ -14,11 +16,58 @@ interface MikvahListViewProps {
   selectedMikvahId?: string
 }
 
-// Extended type for mikvahs with distance
-type MikvahWithDistance = Mikvah & { distance?: number }
+// Extended type for mikvahs with distance and ratings
+type MikvahWithDistance = Mikvah & {
+  distance?: number
+  averageRating?: number
+  reviewCount?: number
+}
 
 export function MikvahListView({ mikvahs, onMikvahSelect, selectedMikvahId }: MikvahListViewProps) {
   const { t } = useTranslation()
+  const [mikvahsWithRatings, setMikvahsWithRatings] = useState<MikvahWithDistance[]>(mikvahs)
+  const supabase = createClient()
+
+  useEffect(() => {
+    loadRatings()
+  }, [mikvahs])
+
+  const loadRatings = async () => {
+    const mikvahIds = mikvahs.map(m => m.id)
+
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('mikvah_id, rating')
+      .in('mikvah_id', mikvahIds)
+      .eq('is_approved', true)
+
+    if (!error && data) {
+      // Calculate average ratings per mikvah
+      const ratingsByMikvah = data.reduce((acc, review) => {
+        if (!acc[review.mikvah_id]) {
+          acc[review.mikvah_id] = []
+        }
+        acc[review.mikvah_id].push(review.rating)
+        return acc
+      }, {} as Record<string, number[]>)
+
+      // Add ratings to mikvahs
+      const enriched = mikvahs.map(mikvah => {
+        const ratings = ratingsByMikvah[mikvah.id] || []
+        const averageRating = ratings.length > 0
+          ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
+          : undefined
+
+        return {
+          ...mikvah,
+          averageRating,
+          reviewCount: ratings.length,
+        }
+      })
+
+      setMikvahsWithRatings(enriched)
+    }
+  }
 
   const getMikvahTypeLabel = (type: string) => {
     switch (type) {
@@ -49,18 +98,29 @@ export function MikvahListView({ mikvahs, onMikvahSelect, selectedMikvahId }: Mi
       </div>
       
       <div className="space-y-3 max-h-96 overflow-y-auto">
-        {mikvahs.map((mikvah: MikvahWithDistance) => (
-          <Card 
-            key={mikvah.id} 
+        {mikvahsWithRatings.map((mikvah: MikvahWithDistance) => (
+          <Card
+            key={mikvah.id}
             className={`cursor-pointer transition-all hover:shadow-md ${
               selectedMikvahId === mikvah.id ? 'ring-2 ring-primary' : ''
             }`}
             onClick={() => onMikvahSelect(mikvah)}
           >
             <CardHeader className="pb-2">
-              <CardTitle className="text-base line-clamp-2">
-                {mikvah.name_en || mikvah.name_he}
-              </CardTitle>
+              <div className="flex items-start justify-between gap-2">
+                <CardTitle className="text-base line-clamp-2">
+                  {mikvah.name_en || mikvah.name_he}
+                </CardTitle>
+                {mikvah.averageRating !== undefined && mikvah.reviewCount && mikvah.reviewCount > 0 && (
+                  <div className="flex-shrink-0">
+                    <StarRating
+                      rating={mikvah.averageRating}
+                      size="sm"
+                      showCount={false}
+                    />
+                  </div>
+                )}
+              </div>
             </CardHeader>
             
             <CardContent className="pt-0">

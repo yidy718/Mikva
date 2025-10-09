@@ -1,24 +1,31 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   MapPin,
   Phone,
   Clock,
   Users,
   Navigation,
-  MessageSquare
+  MessageSquare,
+  Star,
+  PenSquare
 } from 'lucide-react'
 import { Mikvah } from '@/lib/supabase/database.types'
+import { useTranslation } from 'react-i18next'
+import { createClient } from '@/lib/supabase/client'
+import { CorrectionForm } from './CorrectionForm'
+import { ReviewsList } from '@/components/reviews/ReviewsList'
+import { ReviewForm } from '@/components/reviews/ReviewForm'
+import { StarRating } from '@/components/ui/star-rating'
 
 // Extended type for mikvahs with distance
 type MikvahWithDistance = Mikvah & { distance?: number }
-import { useTranslation } from 'react-i18next'
-import { CorrectionForm } from './CorrectionForm'
 
 interface MikvahDetailsModalProps {
   mikvah: Mikvah | null
@@ -30,6 +37,35 @@ interface MikvahDetailsModalProps {
 export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: MikvahDetailsModalProps) {
   const { t } = useTranslation()
   const [showCorrectionForm, setShowCorrectionForm] = useState(false)
+  const [showReviewForm, setShowReviewForm] = useState(false)
+  const [averageRating, setAverageRating] = useState<number | null>(null)
+  const [reviewCount, setReviewCount] = useState(0)
+  const supabase = createClient()
+
+  useEffect(() => {
+    if (mikvah?.id) {
+      loadRatings()
+    }
+  }, [mikvah?.id])
+
+  const loadRatings = async () => {
+    if (!mikvah) return
+
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('rating')
+      .eq('mikvah_id', mikvah.id)
+      .eq('is_approved', true)
+
+    if (!error && data && data.length > 0) {
+      const avg = data.reduce((sum, review) => sum + review.rating, 0) / data.length
+      setAverageRating(avg)
+      setReviewCount(data.length)
+    } else {
+      setAverageRating(null)
+      setReviewCount(0)
+    }
+  }
 
   if (!mikvah) return null
 
@@ -67,12 +103,32 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {mikvah.name_en || mikvah.name_he}
-          </DialogTitle>
+          <div>
+            <DialogTitle>
+              {mikvah.name_en || mikvah.name_he}
+            </DialogTitle>
+            {averageRating !== null && (
+              <div className="mt-2">
+                <StarRating
+                  rating={averageRating}
+                  showCount={true}
+                  count={reviewCount}
+                  size="sm"
+                />
+              </div>
+            )}
+          </div>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <Tabs defaultValue="details" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="details">{t('mikvah.details') || 'Details'}</TabsTrigger>
+            <TabsTrigger value="reviews">
+              {t('reviews.title') || 'Reviews'} {reviewCount > 0 && `(${reviewCount})`}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="details" className="space-y-6 mt-4">
           {/* Basic Information */}
           <Card>
             <CardContent className="pt-6">
@@ -180,9 +236,9 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
                 {t('mikvah.navigate')}
               </Button>
             )}
-            
-            <Button 
-              variant="outline" 
+
+            <Button
+              variant="outline"
               onClick={() => setShowCorrectionForm(true)}
               className="flex-1"
             >
@@ -190,7 +246,24 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
               {t('mikvah.reportCorrection')}
             </Button>
           </div>
-        </div>
+          </TabsContent>
+
+          <TabsContent value="reviews" className="mt-4">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">
+                  {t('reviews.title') || 'Reviews'}
+                </h3>
+                <Button onClick={() => setShowReviewForm(true)} size="sm">
+                  <PenSquare className="h-4 w-4 mr-2" />
+                  {t('reviews.writeReview') || 'Write Review'}
+                </Button>
+              </div>
+
+              <ReviewsList mikvahId={mikvah.id} />
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Correction Form Modal */}
         {showCorrectionForm && (
@@ -200,6 +273,16 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
             onClose={() => setShowCorrectionForm(false)}
           />
         )}
+
+        {/* Review Form Modal */}
+        <ReviewForm
+          mikvahId={mikvah.id}
+          isOpen={showReviewForm}
+          onClose={() => setShowReviewForm(false)}
+          onSuccess={() => {
+            loadRatings()
+          }}
+        />
       </DialogContent>
     </Dialog>
   )
