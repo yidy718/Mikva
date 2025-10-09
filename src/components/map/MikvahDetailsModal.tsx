@@ -23,6 +23,7 @@ import { CorrectionForm } from './CorrectionForm'
 import { ReviewsList } from '@/components/reviews/ReviewsList'
 import { ReviewForm } from '@/components/reviews/ReviewForm'
 import { StarRating } from '@/components/ui/star-rating'
+import { FavoriteButton } from '@/components/ui/favorite-button'
 import { ReportMikvahForm } from '@/components/community/ReportMikvahForm'
 import { VerifyButton } from '@/components/community/VerifyButton'
 import { QASection } from '@/components/community/QASection'
@@ -107,20 +108,28 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div>
-            <DialogTitle>
-              {mikvah.name_en || mikvah.name_he}
-            </DialogTitle>
-            {averageRating !== null && (
-              <div className="mt-2">
-                <StarRating
-                  rating={averageRating}
-                  showCount={true}
-                  count={reviewCount}
-                  size="sm"
-                />
-              </div>
-            )}
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <DialogTitle>
+                {mikvah.name_en || mikvah.name_he}
+              </DialogTitle>
+              {averageRating !== null && (
+                <div className="mt-2">
+                  <StarRating
+                    rating={averageRating}
+                    showCount={true}
+                    count={reviewCount}
+                    size="sm"
+                  />
+                </div>
+              )}
+            </div>
+            <FavoriteButton
+              mikvahId={mikvah.id}
+              size="sm"
+              variant="ghost"
+              className="ml-2"
+            />
           </div>
         </DialogHeader>
 

@@ -19,6 +19,7 @@ interface AddressInputProps {
   className?: string
   country?: string
   proximity?: [number, number]
+  searchTypes?: string[] // Allow customizing search types
 }
 
 export function AddressInput({
@@ -32,6 +33,7 @@ export function AddressInput({
   className,
   country, // No default country for worldwide access
   proximity,
+  searchTypes = ['address', 'poi'], // Default to address and poi, but allow override
 }: AddressInputProps) {
   const [suggestions, setSuggestions] = useState<GeocodingResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -56,7 +58,7 @@ export function AddressInput({
         const results = await geocodingService.searchAddress(query, {
           country,
           proximity,
-          types: ['address', 'poi'],
+          types: searchTypes,
           limit: 5,
         })
         console.log('Search results:', results) // Debug log

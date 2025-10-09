@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
-import { MapPin, LogOut, User, Globe, Menu } from 'lucide-react'
+import { MapPin, LogOut, User, Globe, Menu, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -45,18 +45,33 @@ export function Header() {
           </Link>
 
           {user && (
-            <Link
-              href="/submit"
-              className={cn(
-                'text-sm font-medium transition-colors hover:text-primary',
-                pathname === '/submit'
-                  ? 'text-foreground'
-                  : 'text-muted-foreground'
-              )}
-              aria-current={pathname === '/submit' ? 'page' : undefined}
-            >
-              {t('nav.submit')}
-            </Link>
+            <>
+              <Link
+                href="/submit"
+                className={cn(
+                  'text-sm font-medium transition-colors hover:text-primary',
+                  pathname === '/submit'
+                    ? 'text-foreground'
+                    : 'text-muted-foreground'
+                )}
+                aria-current={pathname === '/submit' ? 'page' : undefined}
+              >
+                {t('nav.submit')}
+              </Link>
+              <Link
+                href="/favorites"
+                className={cn(
+                  'text-sm font-medium transition-colors hover:text-primary',
+                  pathname === '/favorites'
+                    ? 'text-foreground'
+                    : 'text-muted-foreground'
+                )}
+                aria-current={pathname === '/favorites' ? 'page' : undefined}
+              >
+                <Heart className="h-4 w-4 inline mr-1" aria-hidden="true" />
+                {t('nav.favorites', 'Favorites')}
+              </Link>
+            </>
           )}
 
           {isAdmin && (
@@ -185,17 +200,31 @@ export function Header() {
                 </Link>
 
                 {user && (
-                  <Link
-                    href="/submit"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      'text-lg font-medium transition-colors hover:text-primary py-2',
-                      pathname === '/submit' ? 'text-foreground' : 'text-muted-foreground'
-                    )}
-                    aria-current={pathname === '/submit' ? 'page' : undefined}
-                  >
-                    {t('nav.submit')}
-                  </Link>
+                  <>
+                    <Link
+                      href="/submit"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        'text-lg font-medium transition-colors hover:text-primary py-2',
+                        pathname === '/submit' ? 'text-foreground' : 'text-muted-foreground'
+                      )}
+                      aria-current={pathname === '/submit' ? 'page' : undefined}
+                    >
+                      {t('nav.submit')}
+                    </Link>
+                    <Link
+                      href="/favorites"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        'text-lg font-medium transition-colors hover:text-primary py-2',
+                        pathname === '/favorites' ? 'text-foreground' : 'text-muted-foreground'
+                      )}
+                      aria-current={pathname === '/favorites' ? 'page' : undefined}
+                    >
+                      <Heart className="h-5 w-5 inline mr-2" aria-hidden="true" />
+                      {t('nav.favorites', 'Favorites')}
+                    </Link>
+                  </>
                 )}
 
                 {isAdmin && (

@@ -241,8 +241,9 @@ export function MapView({
                 }
               }}
               onLocationSelect={handleLocationSelect}
-              placeholder="Search for a location worldwide..."
+              placeholder="Search for cities and places worldwide..."
               proximity={[viewState.longitude, viewState.latitude]}
+              searchTypes={['place', 'locality', 'region', 'country']}
             />
           </div>
         </div>
