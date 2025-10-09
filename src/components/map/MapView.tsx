@@ -24,6 +24,7 @@ interface MapViewProps {
   selectedLocation?: { lng: number; lat: number }
   showSearch?: boolean
   onLocationSelect?: (result: GeocodingResult) => void
+  isLoading?: boolean
 }
 
 export function MapView({
@@ -33,6 +34,7 @@ export function MapView({
   selectedLocation,
   showSearch = false,
   onLocationSelect,
+  isLoading = false,
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null)
   const [viewState, setViewState] = useState({
@@ -303,6 +305,7 @@ export function MapView({
                 mikvahs={filteredMikvahs}
                 onMikvahSelect={handleMikvahSelect}
                 selectedMikvahId={selectedMikvah?.id}
+                isLoading={isLoading}
               />
             </div>
           </div>

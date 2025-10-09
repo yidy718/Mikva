@@ -65,8 +65,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <Link href="/map" className="flex items-center gap-2 font-semibold">
-          <MapPin className="h-6 w-6" />
+        <Link href="/map" className="flex items-center gap-2 font-semibold" aria-label={t('nav.home') || 'Home - Mikvah Locator'}>
+          <MapPin className="h-6 w-6" aria-hidden="true" />
           <span className="hidden sm:inline">{t('map.title')}</span>
         </Link>
 
@@ -78,6 +78,7 @@ export function Header() {
               'text-sm font-medium transition-colors hover:text-primary',
               pathname === '/map' ? 'text-foreground' : 'text-muted-foreground'
             )}
+            aria-current={pathname === '/map' ? 'page' : undefined}
           >
             {t('nav.map')}
           </Link>
@@ -91,6 +92,7 @@ export function Header() {
                   ? 'text-foreground'
                   : 'text-muted-foreground'
               )}
+              aria-current={pathname === '/submit' ? 'page' : undefined}
             >
               {t('nav.submit')}
             </Link>
@@ -105,6 +107,7 @@ export function Header() {
                   ? 'text-foreground'
                   : 'text-muted-foreground'
               )}
+              aria-current={pathname === '/admin' ? 'page' : undefined}
             >
               {t('nav.admin')}
             </Link>
@@ -112,9 +115,14 @@ export function Header() {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={toggleLanguage}>
-                <Globe className="h-5 w-5" />
-                <span className="sr-only">Toggle language</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleLanguage}
+                aria-label={`Switch to ${i18n.language === 'en' ? 'Hebrew' : 'English'}`}
+              >
+                <Globe className="h-5 w-5" aria-hidden="true" />
+                <span className="sr-only">Switch to {i18n.language === 'en' ? 'Hebrew' : 'English'}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -125,9 +133,14 @@ export function Header() {
           {user ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" onClick={handleLogout}>
-                  <LogOut className="h-5 w-5" />
-                  <span className="sr-only">Logout</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleLogout}
+                  aria-label={t('nav.logout') || 'Logout'}
+                >
+                  <LogOut className="h-5 w-5" aria-hidden="true" />
+                  <span className="sr-only">{t('nav.logout') || 'Logout'}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -138,9 +151,13 @@ export function Header() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link href="/login">
-                  <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
-                    <span className="sr-only">Login</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t('nav.login') || 'Login'}
+                  >
+                    <User className="h-5 w-5" aria-hidden="true" />
+                    <span className="sr-only">{t('nav.login') || 'Login'}</span>
                   </Button>
                 </Link>
               </TooltipTrigger>
@@ -155,9 +172,14 @@ export function Header() {
         <div className="md:hidden flex items-center gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={toggleLanguage}>
-                <Globe className="h-5 w-5" />
-                <span className="sr-only">Toggle language</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleLanguage}
+                aria-label={`Switch to ${i18n.language === 'en' ? 'Hebrew' : 'English'}`}
+              >
+                <Globe className="h-5 w-5" aria-hidden="true" />
+                <span className="sr-only">Switch to {i18n.language === 'en' ? 'Hebrew' : 'English'}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -169,9 +191,13 @@ export function Header() {
             <SheetTrigger asChild>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Menu className="h-5 w-5" />
-                    <span className="sr-only">Open menu</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t('nav.menu') || 'Open navigation menu'}
+                  >
+                    <Menu className="h-5 w-5" aria-hidden="true" />
+                    <span className="sr-only">{t('nav.menu') || 'Open navigation menu'}</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -183,7 +209,7 @@ export function Header() {
               <SheetHeader>
                 <SheetTitle>{t('map.title')}</SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-4 mt-8">
+              <nav className="flex flex-col gap-4 mt-8" role="navigation" aria-label="Main navigation">
                 <Link
                   href="/map"
                   onClick={() => setMobileMenuOpen(false)}
@@ -191,6 +217,7 @@ export function Header() {
                     'text-lg font-medium transition-colors hover:text-primary py-2',
                     pathname === '/map' ? 'text-foreground' : 'text-muted-foreground'
                   )}
+                  aria-current={pathname === '/map' ? 'page' : undefined}
                 >
                   {t('nav.map')}
                 </Link>
@@ -203,6 +230,7 @@ export function Header() {
                       'text-lg font-medium transition-colors hover:text-primary py-2',
                       pathname === '/submit' ? 'text-foreground' : 'text-muted-foreground'
                     )}
+                    aria-current={pathname === '/submit' ? 'page' : undefined}
                   >
                     {t('nav.submit')}
                   </Link>
@@ -216,6 +244,7 @@ export function Header() {
                       'text-lg font-medium transition-colors hover:text-primary py-2',
                       pathname === '/admin' ? 'text-foreground' : 'text-muted-foreground'
                     )}
+                    aria-current={pathname === '/admin' ? 'page' : undefined}
                   >
                     {t('nav.admin')}
                   </Link>
@@ -230,14 +259,19 @@ export function Header() {
                         handleLogout()
                         setMobileMenuOpen(false)
                       }}
+                      aria-label={t('nav.logout') || 'Logout'}
                     >
-                      <LogOut className="h-4 w-4 mr-2" />
+                      <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
                       {t('nav.logout')}
                     </Button>
                   ) : (
                     <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full justify-start">
-                        <User className="h-4 w-4 mr-2" />
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        aria-label={t('nav.login') || 'Login'}
+                      >
+                        <User className="h-4 w-4 mr-2" aria-hidden="true" />
                         {t('nav.login')}
                       </Button>
                     </Link>

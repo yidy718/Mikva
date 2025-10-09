@@ -1,31 +1,78 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { strictRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResponse = await strictRateLimit(request)
+  if (rateLimitResponse.status === 429) {
+    return rateLimitResponse
+  }
+
   try {
-    // Create admin client with service role key
-    const supabase = createClient(
+    // Create server-side Supabase client
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    )
+
+    // Get authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if user is admin
+    const { data: userRole, error: roleError } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single()
+
+    if (roleError || userRole?.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Use service role for admin operations (server-side only)
+    const adminSupabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
+        cookies: {
+          get() {
+            return undefined
+          },
+          set() {
+            // No-op for admin operations
+          },
+          remove() {
+            // No-op for admin operations
+          },
+        },
       }
     )
 
     // Get all users
-    const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers()
+    const { data: { users }, error: usersError } = await adminSupabase.auth.admin.listUsers()
 
     if (usersError) {
       return NextResponse.json({ error: usersError.message }, { status: 500 })
     }
 
     // Get user roles
-    const { data: roles, error: rolesError } = await supabase
+    const { data: roles, error: rolesError } = await adminSupabase
       .from('user_roles')
       .select('*')
 
@@ -43,6 +90,7 @@ export async function GET() {
 
     return NextResponse.json(usersWithRoles)
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Admin users API error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

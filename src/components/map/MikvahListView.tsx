@@ -9,11 +9,13 @@ import { Mikvah } from '@/lib/supabase/database.types'
 import { useTranslation } from 'react-i18next'
 import { createClient } from '@/lib/supabase/client'
 import { StarRating } from '@/components/ui/star-rating'
+import { MikvahCardSkeleton } from './MikvahCardSkeleton'
 
 interface MikvahListViewProps {
   mikvahs: Mikvah[]
   onMikvahSelect: (mikvah: Mikvah) => void
   selectedMikvahId?: string
+  isLoading?: boolean
 }
 
 // Extended type for mikvahs with distance and ratings
@@ -23,7 +25,7 @@ type MikvahWithDistance = Mikvah & {
   reviewCount?: number
 }
 
-export function MikvahListView({ mikvahs, onMikvahSelect, selectedMikvahId }: MikvahListViewProps) {
+export function MikvahListView({ mikvahs, onMikvahSelect, selectedMikvahId, isLoading = false }: MikvahListViewProps) {
   const { t } = useTranslation()
   const [mikvahsWithRatings, setMikvahsWithRatings] = useState<MikvahWithDistance[]>(mikvahs)
   const supabase = createClient()
@@ -88,6 +90,18 @@ export function MikvahListView({ mikvahs, onMikvahSelect, selectedMikvahId }: Mi
       return `${Math.round(distance * 1000)}m`
     }
     return `${distance.toFixed(1)}km`
+  }
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex flex-col">
+        <div className="space-y-3 flex-1 overflow-y-auto py-4">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <MikvahCardSkeleton key={`skeleton-${index}`} />
+          ))}
+        </div>
+      </div>
+    )
   }
 
   return (

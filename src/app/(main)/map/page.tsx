@@ -49,6 +49,7 @@ export default function MapPage() {
       <MapView
         mikvahs={mikvahs}
         showSearch={true}
+        isLoading={isLoading}
       />
     </div>
   )
