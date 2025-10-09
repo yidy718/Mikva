@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
+export const dynamic = 'force-dynamic'
+
 const correctionSchema = z.object({
   mikvah_id: z.string().uuid(),
   type: z.enum(['incorrect_info', 'missing_info', 'outdated_info', 'other']),

@@ -9,6 +9,7 @@ import { Database } from '@/lib/supabase/database.types'
 import { geocodingService, type GeocodingResult } from '@/lib/geocoding'
 import { AddressInput } from '@/components/ui/address-input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { MikvahListView } from './MikvahListView'
 import { MikvahDetailsModal } from './MikvahDetailsModal'
 
@@ -205,26 +206,40 @@ export function MapView({
       <div className="absolute top-4 right-4 z-10">
         <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-1">
           <div className="flex">
-            <button
-              onClick={() => setViewMode('map')}
-              className={`px-3 py-2 text-sm rounded-md transition-colors ${
-                viewMode === 'map' 
-                  ? 'bg-primary text-primary-foreground' 
-                  : 'hover:bg-muted'
-              }`}
-            >
-              <MapIcon className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`px-3 py-2 text-sm rounded-md transition-colors ${
-                viewMode === 'list' 
-                  ? 'bg-primary text-primary-foreground' 
-                  : 'hover:bg-muted'
-              }`}
-            >
-              <List className="h-4 w-4" />
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`px-3 py-2 text-sm rounded-md transition-colors ${
+                    viewMode === 'map'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'hover:bg-muted'
+                  }`}
+                >
+                  <MapIcon className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Map View</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-2 text-sm rounded-md transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'hover:bg-muted'
+                  }`}
+                >
+                  <List className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>List View</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </div>

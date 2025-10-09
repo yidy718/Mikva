@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Check, X, Edit, Trash2, UserCog, Users } from 'lucide-react'
 import { LoadingScreen } from '@/components/ui/spinner'
 
@@ -173,26 +174,54 @@ export default function AdminPage() {
           <div className="flex gap-2">
             {showActions === 'pending' && (
               <>
-                <Button size="sm" variant="default" onClick={() => handleApprove(mikvah.id)}>
-                  <Check className="h-4 w-4 mr-1" />
-                  {t('admin.approve')}
-                </Button>
-                <Button size="sm" variant="destructive" onClick={() => handleReject(mikvah.id)}>
-                  <X className="h-4 w-4 mr-1" />
-                  {t('admin.reject')}
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="default" onClick={() => handleApprove(mikvah.id)}>
+                      <Check className="h-4 w-4 mr-1" />
+                      {t('admin.approve')}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Approve this mikvah submission</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="destructive" onClick={() => handleReject(mikvah.id)}>
+                      <X className="h-4 w-4 mr-1" />
+                      {t('admin.reject')}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Reject this submission</p>
+                  </TooltipContent>
+                </Tooltip>
               </>
             )}
             {showActions === 'approved' && (
               <>
-                <Button size="sm" variant="outline" onClick={() => handleEdit(mikvah)}>
-                  <Edit className="h-4 w-4 mr-1" />
-                  {t('common.edit')}
-                </Button>
-                <Button size="sm" variant="destructive" onClick={() => handleDelete(mikvah.id)}>
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  {t('common.delete')}
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="outline" onClick={() => handleEdit(mikvah)}>
+                      <Edit className="h-4 w-4 mr-1" />
+                      {t('common.edit')}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Edit mikvah information</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button size="sm" variant="destructive" onClick={() => handleDelete(mikvah.id)}>
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      {t('common.delete')}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Permanently delete this mikvah</p>
+                  </TooltipContent>
+                </Tooltip>
               </>
             )}
           </div>

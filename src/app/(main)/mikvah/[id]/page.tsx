@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Database } from '@/lib/supabase/database.types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Navigation, Phone, MapPin, Clock, DollarSign, Share2 } from 'lucide-react'
 
 type Mikvah = Database['public']['Tables']['mikvahs']['Row']
@@ -96,14 +97,28 @@ export default function MikvahDetailPage() {
             <p className="text-2xl text-muted-foreground mt-2">{mikvah.name_he}</p>
           )}
           <div className="flex gap-2 mt-4">
-            <Button onClick={handleGetDirections}>
-              <Navigation className="h-4 w-4 mr-2" />
-              {t('mikvah.getDirections')}
-            </Button>
-            <Button variant="outline" onClick={handleShare}>
-              <Share2 className="h-4 w-4 mr-2" />
-              {t('mikvah.share')}
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={handleGetDirections}>
+                  <Navigation className="h-4 w-4 mr-2" />
+                  {t('mikvah.getDirections')}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Open in Google Maps</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" onClick={handleShare}>
+                  <Share2 className="h-4 w-4 mr-2" />
+                  {t('mikvah.share')}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Share this mikvah</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
 

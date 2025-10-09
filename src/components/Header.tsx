@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { MapPin, LogOut, User, Globe, Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
@@ -109,39 +110,74 @@ export function Header() {
             </Link>
           )}
 
-          <Button variant="ghost" size="icon" onClick={toggleLanguage}>
-            <Globe className="h-5 w-5" />
-            <span className="sr-only">Toggle language</span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={toggleLanguage}>
+                <Globe className="h-5 w-5" />
+                <span className="sr-only">Toggle language</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{i18n.language === 'en' ? 'Switch to Hebrew' : 'Switch to English'}</p>
+            </TooltipContent>
+          </Tooltip>
 
           {user ? (
-            <Button variant="ghost" size="icon" onClick={handleLogout}>
-              <LogOut className="h-5 w-5" />
-              <span className="sr-only">Logout</span>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={handleLogout}>
+                  <LogOut className="h-5 w-5" />
+                  <span className="sr-only">Logout</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t('nav.logout') || 'Logout'}</p>
+              </TooltipContent>
+            </Tooltip>
           ) : (
-            <Link href="/login">
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-                <span className="sr-only">Login</span>
-              </Button>
-            </Link>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/login">
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                    <span className="sr-only">Login</span>
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t('nav.login') || 'Login'}</p>
+              </TooltipContent>
+            </Tooltip>
           )}
         </nav>
 
         {/* Mobile Menu */}
         <div className="md:hidden flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={toggleLanguage}>
-            <Globe className="h-5 w-5" />
-            <span className="sr-only">Toggle language</span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={toggleLanguage}>
+                <Globe className="h-5 w-5" />
+                <span className="sr-only">Toggle language</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{i18n.language === 'en' ? 'Switch to Hebrew' : 'Switch to English'}</p>
+            </TooltipContent>
+          </Tooltip>
 
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Open menu</span>
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{t('nav.menu') || 'Menu'}</p>
+                </TooltipContent>
+              </Tooltip>
             </SheetTrigger>
             <SheetContent side="right">
               <SheetHeader>
