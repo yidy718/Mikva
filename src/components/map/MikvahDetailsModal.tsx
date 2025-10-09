@@ -23,6 +23,9 @@ import { CorrectionForm } from './CorrectionForm'
 import { ReviewsList } from '@/components/reviews/ReviewsList'
 import { ReviewForm } from '@/components/reviews/ReviewForm'
 import { StarRating } from '@/components/ui/star-rating'
+import { ReportMikvahForm } from '@/components/community/ReportMikvahForm'
+import { VerifyButton } from '@/components/community/VerifyButton'
+import { QASection } from '@/components/community/QASection'
 
 // Extended type for mikvahs with distance
 type MikvahWithDistance = Mikvah & { distance?: number }
@@ -38,6 +41,7 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
   const { t } = useTranslation()
   const [showCorrectionForm, setShowCorrectionForm] = useState(false)
   const [showReviewForm, setShowReviewForm] = useState(false)
+  const [showReportForm, setShowReportForm] = useState(false)
   const [averageRating, setAverageRating] = useState<number | null>(null)
   const [reviewCount, setReviewCount] = useState(0)
   const supabase = createClient()
@@ -121,11 +125,12 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
         </DialogHeader>
 
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="details">{t('mikvah.details') || 'Details'}</TabsTrigger>
             <TabsTrigger value="reviews">
               {t('reviews.title') || 'Reviews'} {reviewCount > 0 && `(${reviewCount})`}
             </TabsTrigger>
+            <TabsTrigger value="qa">Q&A</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="space-y-6 mt-4">
@@ -229,22 +234,41 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-3">
-            {onNavigate && (
-              <Button onClick={handleNavigate} className="flex-1">
-                <Navigation className="h-4 w-4 mr-2" />
-                {t('mikvah.navigate')}
-              </Button>
-            )}
+          <div className="space-y-3">
+            <div className="flex gap-3">
+              {onNavigate && (
+                <Button onClick={handleNavigate} className="flex-1">
+                  <Navigation className="h-4 w-4 mr-2" />
+                  {t('mikvah.navigate')}
+                </Button>
+              )}
 
-            <Button
-              variant="outline"
-              onClick={() => setShowCorrectionForm(true)}
-              className="flex-1"
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              {t('mikvah.reportCorrection')}
-            </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowCorrectionForm(true)}
+                className="flex-1"
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Suggest Edit
+              </Button>
+            </div>
+
+            {/* Community Actions */}
+            <div className="flex gap-3">
+              <VerifyButton
+                mikvahId={mikvah.id}
+                verificationCount={(mikvah as any).verification_count || 0}
+                onVerified={loadRatings}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowReportForm(true)}
+                className="flex-1"
+              >
+                Report Issue
+              </Button>
+            </div>
           </div>
           </TabsContent>
 
@@ -262,6 +286,10 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
 
               <ReviewsList mikvahId={mikvah.id} />
             </div>
+          </TabsContent>
+
+          <TabsContent value="qa" className="mt-4">
+            <QASection mikvahId={mikvah.id} />
           </TabsContent>
         </Tabs>
 
@@ -283,6 +311,15 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
             loadRatings()
           }}
         />
+
+        {/* Report Form Modal */}
+        {mikvah && (
+          <ReportMikvahForm
+            mikvah={mikvah}
+            isOpen={showReportForm}
+            onClose={() => setShowReportForm(false)}
+          />
+        )}
       </DialogContent>
     </Dialog>
   )
