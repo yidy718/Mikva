@@ -63,7 +63,14 @@ export function AddressInput({
         setSuggestions(results)
       } catch (error) {
         console.error('Address search error:', error)
-        setSuggestions([])
+        // Show a fallback message if geocoding fails
+        setSuggestions([{
+          id: 'error',
+          place_name: 'Geocoding service unavailable. Please check your Mapbox token.',
+          center: [0, 0],
+          context: [],
+          properties: {}
+        }])
       } finally {
         setIsLoading(false)
       }
