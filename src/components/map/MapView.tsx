@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import Map, { Marker, Popup, NavigationControl, GeolocateControl } from 'react-map-gl'
 import type { MapRef } from 'react-map-gl'
 import Supercluster from 'supercluster'
@@ -13,6 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { MikvahListView } from './MikvahListView'
 import { MikvahDetailsModal } from './MikvahDetailsModal'
 import { MikvahMarker, ClusterMarker } from './MikvahMarker'
+import { FilterPanel, type FilterOptions } from './FilterPanel'
 
 type Mikvah = Database['public']['Tables']['mikvahs']['Row']
 
@@ -46,8 +47,49 @@ export function MapView({
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map')
   const [hoveredMarkerId, setHoveredMarkerId] = useState<string | null>(null)
+  const [filters, setFilters] = useState<FilterOptions>({
+    types: [],
+    searchQuery: '',
+    sortBy: 'nearest',
+  })
 
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
+
+  // Filter and sort mikvahs
+  const filteredMikvahs = useMemo(() => {
+    let result = [...mikvahs]
+
+    // Filter by type
+    if (filters.types.length > 0) {
+      result = result.filter(m => filters.types.includes(m.mikvah_type))
+    }
+
+    // Filter by search query
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase()
+      result = result.filter(m =>
+        m.name_en?.toLowerCase().includes(query) ||
+        m.name_he?.toLowerCase().includes(query) ||
+        m.address?.toLowerCase().includes(query)
+      )
+    }
+
+    // Sort
+    switch (filters.sortBy) {
+      case 'name':
+        result.sort((a, b) => (a.name_en || '').localeCompare(b.name_en || ''))
+        break
+      case 'newest':
+        result.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+        break
+      case 'nearest':
+      default:
+        // Would need user's location for this - for now just use as-is
+        break
+    }
+
+    return result
+  }, [mikvahs, filters])
 
   // Create supercluster index
   const supercluster = useRef(
@@ -58,8 +100,8 @@ export function MapView({
   )
 
   useEffect(() => {
-    // Convert mikvahs to GeoJSON points
-    const points = mikvahs.map((mikvah) => ({
+    // Convert filtered mikvahs to GeoJSON points
+    const points = filteredMikvahs.map((mikvah) => ({
       type: 'Feature' as const,
       properties: { cluster: false, mikvah },
       geometry: {
@@ -69,7 +111,7 @@ export function MapView({
     }))
 
     supercluster.current.load(points)
-  }, [mikvahs])
+  }, [filteredMikvahs])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -186,8 +228,8 @@ export function MapView({
   return (
     <div className="relative w-full h-full">
       {showSearch && (
-        <div className="absolute top-4 left-4 right-4 z-10">
-          <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4">
+        <div className="absolute top-4 left-4 right-20 sm:right-4 sm:max-w-md z-10">
+          <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-2">
             <AddressInput
               value={searchQuery}
               onChange={(value) => {
@@ -251,11 +293,14 @@ export function MapView({
         <div className="absolute inset-0 bg-background z-20">
           <div className="h-full flex flex-col">
             <div className="p-4 border-b">
-              <h2 className="text-xl font-semibold">Mikvahs</h2>
+              <h2 className="text-xl font-semibold">Mikvahs ({filteredMikvahs.length})</h2>
+            </div>
+            <div className="p-4">
+              <FilterPanel filters={filters} onFiltersChange={setFilters} />
             </div>
             <div className="flex-1 overflow-hidden">
               <MikvahListView
-                mikvahs={mikvahs}
+                mikvahs={filteredMikvahs}
                 onMikvahSelect={handleMikvahSelect}
                 selectedMikvahId={selectedMikvah?.id}
               />
@@ -288,7 +333,7 @@ export function MapView({
         const { cluster: isCluster, point_count: pointCount } = cluster.properties
 
         if (isCluster) {
-          const size = 30 + Math.min((pointCount / mikvahs.length) * 30, 40)
+          const size = 30 + Math.min((pointCount / filteredMikvahs.length) * 30, 40)
 
           return (
             <Marker
