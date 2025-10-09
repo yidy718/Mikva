@@ -171,7 +171,7 @@ export function CorrectionForm({ mikvah, isOpen, onClose }: CorrectionFormProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-orange-500" />
@@ -179,7 +179,7 @@ export function CorrectionForm({ mikvah, isOpen, onClose }: CorrectionFormProps)
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 pb-6">
           {/* Mikvah Info */}
           <Card>
             <CardContent className="pt-6">
