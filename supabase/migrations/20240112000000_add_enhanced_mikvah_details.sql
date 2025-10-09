@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS amenity_types (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Insert common mikvah amenities
+-- Insert common men's mikvah amenities
 INSERT INTO amenity_types (id, name_en, name_he, category, icon) VALUES
   -- Accessibility
   ('wheelchair_accessible', 'Wheelchair Accessible', 'נגיש לכיסאות גלגלים', 'accessibility', 'wheelchair'),
@@ -43,36 +43,38 @@ INSERT INTO amenity_types (id, name_en, name_he, category, icon) VALUES
 
   -- Facilities
   ('parking', 'Parking Available', 'חניה זמינה', 'facilities', 'car'),
-  ('changing_room', 'Private Changing Room', 'חדר הלבשה פרטי', 'facilities', 'door-closed'),
-  ('shower', 'Shower', 'מקלחת', 'facilities', 'droplet'),
-  ('hot_water', 'Hot Water', 'מים חמים', 'facilities', 'flame'),
+  ('changing_room', 'Changing Room', 'חדר הלבשה', 'facilities', 'door-closed'),
+  ('hot_shower', 'Hot Shower', 'מקלחת חמה', 'facilities', 'flame'),
+  ('cold_shower', 'Cold Shower', 'מקלחת קרה', 'facilities', 'snowflake'),
+  ('hot_mikvah', 'Hot Mikvah', 'מקווה חמה', 'facilities', 'thermometer'),
+  ('cold_mikvah', 'Cold Mikvah', 'מקווה קרה', 'facilities', 'thermometer-snowflake'),
   ('lockers', 'Lockers Available', 'ארונות זמינים', 'facilities', 'lock'),
   ('waiting_area', 'Waiting Area', 'אזור המתנה', 'facilities', 'armchair'),
   ('towels_provided', 'Towels Provided', 'מגבות מסופקות', 'facilities', 'sheet'),
+  ('separate_entrance', 'Separate Entrance', 'כניסה נפרדת', 'facilities', 'door-open'),
+  ('private_rooms', 'Private Rooms', 'חדרים פרטיים', 'facilities', 'door-closed'),
 
   -- Services
+  ('open_24_7', 'Open 24/7', 'פתוח 24/7', 'services', 'clock'),
   ('appointment_required', 'Appointment Required', 'נדרש תיאום מראש', 'services', 'calendar-clock'),
-  ('attendant_available', 'Attendant Available', 'מלווה זמינה', 'services', 'user-check'),
-  ('mikvah_lady', 'Mikvah Lady Present', 'בלנית נוכחת', 'services', 'user-round'),
+  ('attendant_available', 'Attendant Available', 'שמש זמין', 'services', 'user-check'),
   ('preparation_room', 'Preparation Room', 'חדר הכנה', 'services', 'bath'),
-  ('kosher_supervision', 'Kosher Supervision', 'השגחה כשרות', 'services', 'shield-check'),
+  ('kosher_supervision', 'Kosher Supervision', 'השגחת כשרות', 'services', 'shield-check'),
+  ('mashgiach_present', 'Mashgiach Present', 'משגיח נוכח', 'services', 'user-round'),
 
   -- Comfort & Convenience
   ('air_conditioning', 'Air Conditioning', 'מיזוג אוויר', 'comfort', 'air-vent'),
   ('heating', 'Heating', 'חימום', 'comfort', 'thermometer'),
   ('hair_dryer', 'Hair Dryer', 'מייבש שיער', 'comfort', 'wind'),
   ('toiletries', 'Toiletries Provided', 'מוצרי טיפוח', 'comfort', 'sparkles'),
-  ('baby_changing', 'Baby Changing Station', 'החלפת תינוקות', 'comfort', 'baby'),
-  ('nursing_room', 'Nursing Room', 'חדר הנקה', 'comfort', 'heart'),
-  ('kosher_products', 'Kosher Products Only', 'מוצרים כשרים בלבד', 'comfort', 'check-circle'),
+  ('clean_facility', 'Very Clean', 'נקי מאוד', 'comfort', 'sparkles'),
+  ('modern_facility', 'Modern Facility', 'מתקן מודרני', 'comfort', 'star'),
 
-  -- Special Features
-  ('separate_entrance', 'Separate Entrance', 'כניסה נפרדת', 'facilities', 'door-open'),
-  ('private_mikvah', 'Private Mikvah', 'מקווה פרטית', 'facilities', 'user'),
-  ('family_room', 'Family Room', 'חדר משפחתי', 'facilities', 'users'),
-  ('beautiful_decor', 'Beautiful Decor', 'עיצוב יפה', 'comfort', 'star'),
-  ('natural_water', 'Natural Water Source', 'מקור מים טבעי', 'facilities', 'waves'),
-  ('rainwater', 'Rainwater Mikvah', 'מקווה מי גשמים', 'facilities', 'cloud-rain')
+  -- Water Features
+  ('natural_spring', 'Natural Spring Water', 'מים ממעיין טבעי', 'water', 'waves'),
+  ('rainwater', 'Rainwater Mikvah', 'מקווה מי גשמים', 'water', 'cloud-rain'),
+  ('filtered_water', 'Filtered Water', 'מים מסוננים', 'water', 'droplet'),
+  ('salt_water', 'Salt Water', 'מים מלוחים', 'water', 'waves')
 ON CONFLICT (id) DO NOTHING;
 
 -- Create indexes
