@@ -191,11 +191,36 @@ export function MapView({
 
   const handleLocationSelect = (result: GeocodingResult) => {
     const [lng, lat] = result.center
-    
+
+    // Determine appropriate zoom level based on location type
+    let zoomLevel = 15 // Default zoom for specific locations
+
+    // If it's a city/place/regional location, zoom out more to show broader area
+    const placeTypes = result.properties?.category?.split(',') || []
+    const contextTypes = result.context?.map(ctx => ctx.id) || []
+
+    // Check if this is a city, region, or country level search
+    const isCityOrRegion = contextTypes.some(type =>
+      type.includes('place') ||
+      type.includes('region') ||
+      type.includes('country')
+    ) || placeTypes.some(type =>
+      type.includes('place') ||
+      type.includes('locality') ||
+      type.includes('region')
+    )
+
+    if (isCityOrRegion) {
+      zoomLevel = 11 // Zoom out more for cities/regions to show broader area
+    } else if (result.place_name.includes(',') && result.place_name.split(',').length > 2) {
+      // Likely a specific address with multiple parts
+      zoomLevel = 16 // Zoom in for specific addresses
+    }
+
     setViewState({
       longitude: lng,
       latitude: lat,
-      zoom: 15,
+      zoom: zoomLevel,
     })
 
     if (onLocationSelect) {
@@ -250,7 +275,7 @@ export function MapView({
       )}
 
       {/* View Mode Toggle */}
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 left-4 z-10">
         <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-1">
           <div className="flex">
             <Tooltip>
