@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useTranslation } from 'react-i18next'
@@ -46,6 +46,14 @@ export default function SubmitPage() {
   })
 
   const mikvahType = watch('mikvah_type')
+  const watchedAddress = watch('address')
+
+  // Sync address state with form
+  useEffect(() => {
+    if (watchedAddress && watchedAddress !== address) {
+      setAddress(watchedAddress)
+    }
+  }, [watchedAddress, address])
 
   const handleMapClick = (lng: number, lat: number) => {
     setSelectedLocation({ lng, lat })
@@ -55,6 +63,7 @@ export default function SubmitPage() {
 
   const handleLocationSelect = (result: GeocodingResult) => {
     const [lng, lat] = result.center
+    console.log('Location selected:', result) // Debug log
     setSelectedLocation({ lng, lat })
     setValue('longitude', lng)
     setValue('latitude', lat)

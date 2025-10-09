@@ -161,7 +161,12 @@ export function MapView({
           <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4">
             <AddressInput
               value={searchQuery}
-              onChange={setSearchQuery}
+              onChange={(value) => {
+                setSearchQuery(value)
+                if (value.trim()) {
+                  handleSearch(value)
+                }
+              }}
               onLocationSelect={handleLocationSelect}
               placeholder="Search for a location worldwide..."
               proximity={[viewState.longitude, viewState.latitude]}

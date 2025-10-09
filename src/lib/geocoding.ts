@@ -38,6 +38,8 @@ class GeocodingService {
     options: GeocodingOptions = {}
   ): Promise<GeocodingResult[]> {
     try {
+      console.log('GeocodingService: Searching for', query, 'with options', options)
+      
       const params = new URLSearchParams({
         access_token: this.mapboxToken,
         q: query,
@@ -58,15 +60,18 @@ class GeocodingService {
         params.append('types', options.types.join(','))
       }
 
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?${params}`
-      )
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?${params}`
+      console.log('GeocodingService: Making request to', url)
+      
+      const response = await fetch(url)
 
       if (!response.ok) {
+        console.error('GeocodingService: API error', response.status, response.statusText)
         throw new Error(`Geocoding API error: ${response.status}`)
       }
 
       const data = await response.json()
+      console.log('GeocodingService: API response', data)
       
       return data.features.map((feature: any) => ({
         id: feature.id,

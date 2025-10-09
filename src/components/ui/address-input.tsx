@@ -5,7 +5,7 @@ import { Search, MapPin, Loader2 } from 'lucide-react'
 import { Input } from './input'
 import { Button } from './button'
 import { Label } from './label'
-import { geocodingService, type GeocodingResult } from '@/lib/geocoding'
+import { geocodingService, type GeocodingResult, debounce } from '@/lib/geocoding'
 import { cn } from '@/lib/utils'
 
 interface AddressInputProps {
@@ -44,7 +44,7 @@ export function AddressInput({
   // Debounced search function
   const debouncedSearch = useCallback(
     debounce(async (query: string) => {
-      if (query.length < 3) {
+      if (query.length < 2) {
         setSuggestions([])
         setIsLoading(false)
         return
@@ -52,12 +52,14 @@ export function AddressInput({
 
       setIsLoading(true)
       try {
+        console.log('Searching for:', query) // Debug log
         const results = await geocodingService.searchAddress(query, {
           country,
           proximity,
           types: ['address', 'poi'],
           limit: 5,
         })
+        console.log('Search results:', results) // Debug log
         setSuggestions(results)
       } catch (error) {
         console.error('Address search error:', error)
@@ -208,14 +210,3 @@ export function AddressInput({
   )
 }
 
-// Debounce utility function
-function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func(...args), wait)
-  }
-}
