@@ -37,12 +37,12 @@ git push -u origin main
    - **Output Directory**: `.next`
 
 4. **Add Environment Variables** (IMPORTANT):
-   Click "Environment Variables" and add:
+   Click "Environment Variables" and add the values from your `.env.local` file:
    ```
-   NEXT_PUBLIC_SUPABASE_URL=https://qsmcdszairalyekxsktv.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbWNkc3phaXJhbHlla3hza3R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk5NTQwOTYsImV4cCI6MjA3NTUzMDA5Nn0.xJPKB7kmCdt-N69lu4a8jayJAivzfbl3nPyFrjnoWg0
-   SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbWNkc3phaXJhbHlla3hza3R2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTk1NDA5NiwiZXhwIjoyMDc1NTMwMDk2fQ._HOi6vImqMzlR8H757b4r1Igh-ynpQmbzgtLLJbZrp4
-   NEXT_PUBLIC_MAPBOX_TOKEN=pk.eyJ1IjoieWlkeSIsImEiOiJjbWdpdGRtYXgwM21rMmlva2RwOXRnbDRzIn0.mOgVBDT82y9DdalyMs1-qw
+   NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
+   SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+   NEXT_PUBLIC_MAPBOX_TOKEN=<your-mapbox-token>
    NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
    ```
 
