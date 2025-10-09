@@ -1,44 +1,61 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-  const supabase = createMiddlewareClient({ req, res })
+export async function updateSession(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
 
   // Refresh session if it exists
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
   // Protect authenticated routes
   const protectedPaths = ['/submit', '/admin']
   const isProtectedPath = protectedPaths.some(path =>
-    req.nextUrl.pathname.startsWith(path)
+    request.nextUrl.pathname.startsWith(path)
   )
 
-  if (isProtectedPath && !session) {
-    const redirectUrl = new URL('/login', req.url)
-    redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
+  if (isProtectedPath && !user) {
+    const redirectUrl = new URL('/login', request.url)
+    redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
   }
 
   // Check admin access
-  if (req.nextUrl.pathname.startsWith('/admin') && session) {
+  if (request.nextUrl.pathname.startsWith('/admin') && user) {
     const { data: userRole } = await supabase
       .from('user_roles')
       .select('role')
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .single()
 
     if (!userRole || userRole.role !== 'admin') {
-      return NextResponse.redirect(new URL('/map', req.url))
+      return NextResponse.redirect(new URL('/map', request.url))
     }
   }
 
-  return res
-}
-
-export const config = {
-  matcher: ['/submit/:path*', '/admin/:path*'],
+  return supabaseResponse
 }
