@@ -1,10 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useTranslation } from 'react-i18next'
-import { createClient } from '@/lib/supabase/client'
-import { Database } from '@/lib/supabase/database.types'
+import { useMikvahs } from '@/lib/hooks/useMikvahs'
 import { LoadingScreen } from '@/components/ui/spinner'
 
 // Dynamic import to avoid SSR issues with Mapbox
@@ -13,35 +11,23 @@ const MapView = dynamic(
   { ssr: false }
 )
 
-type Mikvah = Database['public']['Tables']['mikvahs']['Row']
-
 export default function MapPage() {
   const { t } = useTranslation()
-  const [mikvahs, setMikvahs] = useState<Mikvah[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const supabase = createClient()
-
-  useEffect(() => {
-    loadMikvahs()
-  }, [])
-
-  const loadMikvahs = async () => {
-    setIsLoading(true)
-    const { data, error } = await supabase
-      .from('mikvahs')
-      .select('*')
-      .eq('status', 'approved')
-
-    if (error) {
-      console.error('Error loading mikvahs:', error)
-    } else {
-      setMikvahs(data || [])
-    }
-    setIsLoading(false)
-  }
+  const { data: mikvahs = [], isLoading, error } = useMikvahs()
 
   if (isLoading) {
     return <LoadingScreen message={t('common.loading')} />
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Failed to load mikvahs</h2>
+          <p className="text-muted-foreground">Please try refreshing the page.</p>
+        </div>
+      </div>
+    )
   }
 
   return (

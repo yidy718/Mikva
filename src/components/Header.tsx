@@ -1,61 +1,22 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import { MapPin, LogOut, User, Globe, Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth, useLogout } from '@/lib/hooks/useAuth'
 import { cn } from '@/lib/utils'
 
 export function Header() {
   const { t, i18n } = useTranslation()
   const pathname = usePathname()
-  const [user, setUser] = useState<any>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const supabase = createClient()
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null)
-      if (session?.user) {
-        checkAdminStatus(session.user.id)
-      }
-    })
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null)
-      if (session?.user) {
-        checkAdminStatus(session.user.id)
-      } else {
-        setIsAdmin(false)
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
-
-  const checkAdminStatus = async (userId: string) => {
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .single()
-
-    setIsAdmin(data?.role === 'admin')
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    toast.success('Logged out successfully')
-  }
+  const { user, isAdmin } = useAuth()
+  const logout = useLogout()
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'he' : 'en'
@@ -136,7 +97,8 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={handleLogout}
+                  onClick={() => logout.mutate()}
+                  disabled={logout.isPending}
                   aria-label={t('nav.logout') || 'Logout'}
                 >
                   <LogOut className="h-5 w-5" aria-hidden="true" />
@@ -256,9 +218,10 @@ export function Header() {
                       variant="outline"
                       className="w-full justify-start"
                       onClick={() => {
-                        handleLogout()
+                        logout.mutate()
                         setMobileMenuOpen(false)
                       }}
+                      disabled={logout.isPending}
                       aria-label={t('nav.logout') || 'Logout'}
                     >
                       <LogOut className="h-4 w-4 mr-2" aria-hidden="true" />
