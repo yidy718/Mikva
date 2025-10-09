@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { Database } from '@/lib/supabase/database.types'
 import { Button } from '@/components/ui/button'
@@ -57,11 +58,15 @@ export default function MikvahDetailPage() {
           text: `${mikvah.name_en} - ${mikvah.address}`,
           url,
         })
+        toast.success('Shared successfully')
       } catch (err) {
-        console.error('Error sharing:', err)
+        if ((err as Error).name !== 'AbortError') {
+          console.error('Error sharing:', err)
+        }
       }
     } else {
       navigator.clipboard.writeText(url)
+      toast.success('Link copied to clipboard')
     }
   }
 

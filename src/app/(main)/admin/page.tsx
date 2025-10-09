@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { Database } from '@/lib/supabase/database.types'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Check, X, Edit, Trash2, UserCog, Users } from 'lucide-react'
+import { LoadingScreen } from '@/components/ui/spinner'
 
 type Mikvah = Database['public']['Tables']['mikvahs']['Row']
 type UserRole = Database['public']['Tables']['user_roles']['Row']
@@ -84,6 +86,9 @@ export default function AdminPage() {
     if (!error) {
       setPendingMikvahs(pendingMikvahs.filter((m) => m.id !== id))
       await loadApprovedMikvahs()
+      toast.success('Mikvah approved successfully')
+    } else {
+      toast.error('Failed to approve mikvah')
     }
   }
 
@@ -95,6 +100,9 @@ export default function AdminPage() {
 
     if (!error) {
       setPendingMikvahs(pendingMikvahs.filter((m) => m.id !== id))
+      toast.success('Mikvah rejected')
+    } else {
+      toast.error('Failed to reject mikvah')
     }
   }
 
@@ -108,6 +116,9 @@ export default function AdminPage() {
 
     if (!error) {
       setApprovedMikvahs(approvedMikvahs.filter((m) => m.id !== id))
+      toast.success('Mikvah deleted successfully')
+    } else {
+      toast.error('Failed to delete mikvah')
     }
   }
 
@@ -127,6 +138,9 @@ export default function AdminPage() {
     if (!error) {
       setEditingMikvah(null)
       await loadApprovedMikvahs()
+      toast.success('Mikvah updated successfully')
+    } else {
+      toast.error('Failed to update mikvah')
     }
   }
 
@@ -140,6 +154,9 @@ export default function AdminPage() {
 
     if (!error) {
       await loadUsers()
+      toast.success(`User role updated to ${newRole}`)
+    } else {
+      toast.error('Failed to update user role')
     }
   }
 
@@ -219,11 +236,7 @@ export default function AdminPage() {
   )
 
   if (isLoading) {
-    return (
-      <div className="container py-8">
-        <p>{t('common.loading')}</p>
-      </div>
-    )
+    return <LoadingScreen message={t('common.loading')} />
   }
 
   return (

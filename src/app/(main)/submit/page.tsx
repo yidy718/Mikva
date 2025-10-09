@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic'
 import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { mikvahSubmissionSchema, type MikvahSubmissionData } from '@/lib/validations/mikvah'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AddressInput } from '@/components/ui/address-input'
 import { type GeocodingResult } from '@/lib/geocoding'
+import { Spinner } from '@/components/ui/spinner'
 
 const MapView = dynamic(
   () => import('@/components/map/MapView').then((mod) => mod.MapView),
@@ -120,9 +122,15 @@ export default function SubmitPage() {
 
       if (error) throw error
 
+      toast.success('Mikvah submitted successfully!', {
+        description: 'Your submission is pending admin approval.',
+      })
       router.push('/map')
     } catch (error) {
       console.error('Error submitting mikvah:', error)
+      toast.error('Failed to submit mikvah', {
+        description: 'Please try again or contact support.',
+      })
     } finally {
       setIsLoading(false)
     }
@@ -283,6 +291,7 @@ export default function SubmitPage() {
                 </Button>
               ) : (
                 <Button type="submit" disabled={isLoading} className="ml-auto">
+                  {isLoading && <Spinner size="sm" className="mr-2" />}
                   {isLoading ? t('submit.submitting') : t('submit.submit')}
                 </Button>
               )}

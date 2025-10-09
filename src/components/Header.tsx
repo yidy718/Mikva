@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { MapPin, LogOut, User, Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
@@ -50,6 +51,7 @@ export function Header() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
+    toast.success('Logged out successfully')
   }
 
   const toggleLanguage = () => {

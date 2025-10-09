@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import { useTranslation } from 'react-i18next'
 import { createClient } from '@/lib/supabase/client'
 import { Database } from '@/lib/supabase/database.types'
+import { LoadingScreen } from '@/components/ui/spinner'
 
 // Dynamic import to avoid SSR issues with Mapbox
 const MapView = dynamic(
@@ -40,17 +41,13 @@ export default function MapPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="h-[calc(100vh-4rem)] flex items-center justify-center">
-        <p>{t('common.loading')}</p>
-      </div>
-    )
+    return <LoadingScreen message={t('common.loading')} />
   }
 
   return (
     <div className="h-[calc(100vh-4rem)] w-full">
-      <MapView 
-        mikvahs={mikvahs} 
+      <MapView
+        mikvahs={mikvahs}
         showSearch={true}
       />
     </div>

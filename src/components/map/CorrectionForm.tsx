@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -94,6 +95,9 @@ export function CorrectionForm({ mikvah, isOpen, onClose }: CorrectionFormProps)
 
       if (response.ok) {
         setSubmitStatus('success')
+        toast.success('Correction submitted successfully', {
+          description: 'Thank you for helping us improve!'
+        })
         reset()
         setTimeout(() => {
           onClose()
