@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import Map, { Marker, Popup, NavigationControl, GeolocateControl } from 'react-map-gl'
 import type { MapRef } from 'react-map-gl'
 import Supercluster from 'supercluster'
@@ -115,14 +115,7 @@ export function MapView({
     supercluster.current.load(points)
   }, [filteredMikvahs])
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      updateClusters()
-    }, 100)
-    return () => clearTimeout(timer)
-  }, [viewState.longitude, viewState.latitude, viewState.zoom])
-
-  const updateClusters = () => {
+  const updateClusters = useCallback(() => {
     if (!mapRef.current) return
 
     const map = mapRef.current.getMap()
@@ -137,7 +130,14 @@ export function MapView({
     )
 
     setClusters(clusters)
-  }
+  }, [viewState.zoom])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      updateClusters()
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [viewState.longitude, viewState.latitude, viewState.zoom, updateClusters])
 
   const handleClusterClick = (clusterId: number, longitude: number, latitude: number) => {
     const expansionZoom = Math.min(
@@ -315,19 +315,20 @@ export function MapView({
 
       {/* Map View */}
       {viewMode === 'map' && (
-        <Map
-        ref={mapRef}
-        {...viewState}
-        onMove={(evt) => setViewState(evt.viewState)}
-        onClick={(e) => {
-          if (onMapClick) {
-            onMapClick(e.lngLat.lng, e.lngLat.lat)
-          }
-        }}
-        mapStyle="mapbox://styles/mapbox/streets-v12"
-        mapboxAccessToken={mapboxToken}
-        style={{ width: '100%', height: '100%' }}
-      >
+        <div className="relative w-full h-full">
+          <Map
+            ref={mapRef}
+            {...viewState}
+            onMove={(evt) => setViewState(evt.viewState)}
+            onClick={(e) => {
+              if (onMapClick) {
+                onMapClick(e.lngLat.lng, e.lngLat.lat)
+              }
+            }}
+            mapStyle="mapbox://styles/mapbox/streets-v12"
+            mapboxAccessToken={mapboxToken}
+            style={{ width: '100%', height: '100%' }}
+          >
         <NavigationControl position="top-right" />
         <GeolocateControl position="top-right" />
 
@@ -369,7 +370,7 @@ export function MapView({
             }}
           >
             <div
-              className="cursor-pointer"
+              className="cursor-pointer transition-all duration-200 hover:scale-125 hover:-translate-y-1"
               onMouseEnter={() => setHoveredMarkerId(mikvah.id)}
               onMouseLeave={() => setHoveredMarkerId(null)}
             >
@@ -417,6 +418,17 @@ export function MapView({
         </Popup>
       )}
       </Map>
+
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-sm text-muted-foreground">Loading map...</p>
+          </div>
+        </div>
+      )}
+      </div>
       )}
 
       {/* Details Modal */}

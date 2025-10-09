@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -126,12 +127,15 @@ export default function MikvahDetailPage() {
         {mikvah.photos && mikvah.photos.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {mikvah.photos.map((photo, idx) => (
-              <img
-                key={idx}
-                src={photo}
-                alt={`${mikvah.name_en} ${idx + 1}`}
-                className="w-full h-48 object-cover rounded-lg"
-              />
+              <div key={idx} className="relative w-full h-48 rounded-lg overflow-hidden">
+                <Image
+                  src={photo}
+                  alt={`${mikvah.name_en} ${idx + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                />
+              </div>
             ))}
           </div>
         )}

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -230,10 +231,12 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
                 <div className="grid grid-cols-2 gap-2">
                   {mikvah.photos.map((photo, index) => (
                     <div key={index} className="aspect-square rounded-lg overflow-hidden">
-                      <img 
-                        src={photo} 
+                      <Image
+                        src={photo}
                         alt={`${mikvah.name_en} photo ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 50vw, 25vw"
                       />
                     </div>
                   ))}

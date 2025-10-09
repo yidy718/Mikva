@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -142,12 +143,15 @@ export function AdminMikvahCard({
             <p className="text-sm font-medium mb-2">{t('mikvah.photos')}</p>
             <div className="grid grid-cols-4 gap-2">
               {mikvah.photos.map((photo, idx) => (
-                <img
-                  key={idx}
-                  src={photo}
-                  alt={`Photo ${idx + 1} of ${mikvah.name_en}`}
-                  className="w-full h-20 object-cover rounded"
-                />
+                <div key={idx} className="relative w-full h-20 rounded overflow-hidden">
+                  <Image
+                    src={photo}
+                    alt={`Photo ${idx + 1} of ${mikvah.name_en}`}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
+                </div>
               ))}
             </div>
           </div>
