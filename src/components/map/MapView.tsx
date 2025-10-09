@@ -67,6 +67,8 @@ export function MapView({
 
     const map = mapRef.current.getMap()
     const bounds = map.getBounds()
+    if (!bounds) return
+
     const zoom = Math.floor(viewState.zoom)
 
     const clusters = supercluster.current.getClusters(
