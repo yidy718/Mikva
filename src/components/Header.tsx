@@ -14,7 +14,6 @@ import { cn } from '@/lib/utils'
 export function Header() {
   const { t, i18n } = useTranslation()
   const pathname = usePathname()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { user, isAdmin } = useAuth()
   const logout = useLogout()
 
@@ -147,6 +146,26 @@ export function Header() {
 
         {/* Mobile Menu */}
         <div className="md:hidden flex items-center gap-2">
+          {!user && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/login">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t('nav.login') || 'Login'}
+                  >
+                    <User className="h-5 w-5" aria-hidden="true" />
+                    <span className="sr-only">{t('nav.login') || 'Login'}</span>
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t('nav.login') || 'Login'}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -164,24 +183,24 @@ export function Header() {
             </TooltipContent>
           </Tooltip>
 
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t('nav.menu') || 'Open navigation menu'}
-                  >
-                    <Menu className="h-5 w-5" aria-hidden="true" />
-                    <span className="sr-only">{t('nav.menu') || 'Open navigation menu'}</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{t('nav.menu') || 'Menu'}</p>
-                </TooltipContent>
-              </Tooltip>
-            </SheetTrigger>
+          <Sheet>
+                <SheetTrigger asChild>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t('nav.menu') || 'Open navigation menu'}
+                      >
+                        <Menu className="h-5 w-5" aria-hidden="true" />
+                        <span className="sr-only">{t('nav.menu') || 'Open navigation menu'}</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{t('nav.menu') || 'Menu'}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </SheetTrigger>
             <SheetContent side="right">
               <SheetHeader>
                 <SheetTitle>{t('map.title')}</SheetTitle>
@@ -189,7 +208,6 @@ export function Header() {
               <nav className="flex flex-col gap-4 mt-8" role="navigation" aria-label="Main navigation">
                 <Link
                   href="/map"
-                  onClick={() => setMobileMenuOpen(false)}
                   className={cn(
                     'text-lg font-medium transition-colors hover:text-primary py-2',
                     pathname === '/map' ? 'text-foreground' : 'text-muted-foreground'
@@ -203,7 +221,6 @@ export function Header() {
                   <>
                     <Link
                       href="/submit"
-                      onClick={() => setMobileMenuOpen(false)}
                       className={cn(
                         'text-lg font-medium transition-colors hover:text-primary py-2',
                         pathname === '/submit' ? 'text-foreground' : 'text-muted-foreground'
@@ -214,7 +231,6 @@ export function Header() {
                     </Link>
                     <Link
                       href="/favorites"
-                      onClick={() => setMobileMenuOpen(false)}
                       className={cn(
                         'text-lg font-medium transition-colors hover:text-primary py-2',
                         pathname === '/favorites' ? 'text-foreground' : 'text-muted-foreground'
@@ -230,7 +246,6 @@ export function Header() {
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    onClick={() => setMobileMenuOpen(false)}
                     className={cn(
                       'text-lg font-medium transition-colors hover:text-primary py-2',
                       pathname === '/admin' ? 'text-foreground' : 'text-muted-foreground'
@@ -246,10 +261,7 @@ export function Header() {
                     <Button
                       variant="outline"
                       className="w-full justify-start"
-                      onClick={() => {
-                        logout.mutate()
-                        setMobileMenuOpen(false)
-                      }}
+                      onClick={() => logout.mutate()}
                       disabled={logout.isPending}
                       aria-label={t('nav.logout') || 'Logout'}
                     >
@@ -257,7 +269,7 @@ export function Header() {
                       {t('nav.logout')}
                     </Button>
                   ) : (
-                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                    <Link href="/login">
                       <Button
                         variant="outline"
                         className="w-full justify-start"

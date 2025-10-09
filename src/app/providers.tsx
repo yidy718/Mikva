@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { I18nextProvider } from 'react-i18next'
 import { Toaster } from 'sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { InstallPrompt } from '@/components/ui/install-prompt'
 import i18n from '@/lib/i18n/config'
 
 // Create a client-side QueryClient instance
@@ -52,6 +53,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <TooltipProvider delayDuration={300}>
           {children}
           <Toaster position="top-center" richColors closeButton />
+          <InstallPrompt />
         </TooltipProvider>
       </I18nextProvider>
       <ReactQueryDevtools initialIsOpen={false} />

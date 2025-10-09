@@ -1,0 +1,7 @@
+# This is a placeholder file
+# To create the actual icon:
+# 1. Take the icon.svg file
+# 2. Convert it to PNG at 192x192 and 512x512 sizes
+# 3. Save them as icon-192x192.png and icon-512x512.png
+# 4. You can use online tools like https://favicon.io/favicon-converter/
+# 5. Or use ImageMagick: convert icon.svg -resize 512x512 icon-512x512.png
