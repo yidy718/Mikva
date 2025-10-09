@@ -4,10 +4,13 @@ import { useEffect, useRef, useState } from 'react'
 import Map, { Marker, Popup, NavigationControl, GeolocateControl } from 'react-map-gl'
 import type { MapRef } from 'react-map-gl'
 import Supercluster from 'supercluster'
-import { MapPin, Search, X } from 'lucide-react'
+import { MapPin, Search, X, List, Map as MapIcon } from 'lucide-react'
 import { Database } from '@/lib/supabase/database.types'
 import { geocodingService, type GeocodingResult } from '@/lib/geocoding'
 import { AddressInput } from '@/components/ui/address-input'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { MikvahListView } from './MikvahListView'
+import { MikvahDetailsModal } from './MikvahDetailsModal'
 
 type Mikvah = Database['public']['Tables']['mikvahs']['Row']
 
@@ -38,6 +41,8 @@ export function MapView({
   const [clusters, setClusters] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearching, setIsSearching] = useState(false)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('map')
 
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
@@ -102,10 +107,7 @@ export function MapView({
   }
 
   const handleMarkerClick = (mikvah: Mikvah) => {
-    setSelectedMikvah(mikvah)
-    if (onMikvahClick) {
-      onMikvahClick(mikvah)
-    }
+    handleMikvahClick(mikvah)
   }
 
   const handleSearch = async (query: string) => {
@@ -154,6 +156,30 @@ export function MapView({
     }
   }
 
+  const handleMikvahClick = (mikvah: Mikvah) => {
+    setSelectedMikvah(mikvah)
+    setShowDetailsModal(true)
+    if (onMikvahClick) {
+      onMikvahClick(mikvah)
+    }
+  }
+
+  const handleMikvahSelect = (mikvah: Mikvah) => {
+    setSelectedMikvah(mikvah)
+    setViewState({
+      longitude: mikvah.longitude,
+      latitude: mikvah.latitude,
+      zoom: 15,
+    })
+    setViewMode('map')
+  }
+
+  const handleNavigate = (mikvah: Mikvah) => {
+    // This would typically open a navigation app or provide directions
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${mikvah.latitude},${mikvah.longitude}`
+    window.open(url, '_blank')
+  }
+
   return (
     <div className="relative w-full h-full">
       {showSearch && (
@@ -175,7 +201,55 @@ export function MapView({
         </div>
       )}
 
-      <Map
+      {/* View Mode Toggle */}
+      <div className="absolute top-4 right-4 z-10">
+        <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-1">
+          <div className="flex">
+            <button
+              onClick={() => setViewMode('map')}
+              className={`px-3 py-2 text-sm rounded-md transition-colors ${
+                viewMode === 'map' 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'hover:bg-muted'
+              }`}
+            >
+              <MapIcon className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-2 text-sm rounded-md transition-colors ${
+                viewMode === 'list' 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'hover:bg-muted'
+              }`}
+            >
+              <List className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* List View */}
+      {viewMode === 'list' && (
+        <div className="absolute inset-0 bg-background z-20">
+          <div className="h-full flex flex-col">
+            <div className="p-4 border-b">
+              <h2 className="text-xl font-semibold">Mikvahs</h2>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <MikvahListView
+                mikvahs={mikvahs}
+                onMikvahSelect={handleMikvahSelect}
+                selectedMikvahId={selectedMikvah?.id}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Map View */}
+      {viewMode === 'map' && (
+        <Map
         ref={mapRef}
         {...viewState}
         onMove={(evt) => setViewState(evt.viewState)}
@@ -275,6 +349,18 @@ export function MapView({
         </Popup>
       )}
       </Map>
+      )}
+
+      {/* Details Modal */}
+      <MikvahDetailsModal
+        mikvah={selectedMikvah}
+        isOpen={showDetailsModal}
+        onClose={() => {
+          setShowDetailsModal(false)
+          setSelectedMikvah(null)
+        }}
+        onNavigate={handleNavigate}
+      />
     </div>
   )
 }

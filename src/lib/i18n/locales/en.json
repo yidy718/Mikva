@@ -15,7 +15,9 @@
     "myLocation": "My Location",
     "results": "{{count}} mikvah found",
     "results_plural": "{{count}} mikvahs found",
-    "noResults": "No mikvahs found"
+    "noResults": "No mikvahs found",
+    "nearbyMikvahs": "Nearby Mikvahs",
+    "away": "away"
   },
   "filters": {
     "type": "Mikvah Type",
@@ -41,7 +43,20 @@
     "getDirections": "Get Directions",
     "reportIssue": "Report Issue",
     "suggestEdit": "Suggest Edit",
-    "share": "Share"
+    "share": "Share",
+    "types": {
+      "separateHours": "Separate Hours",
+      "mixedHours": "Mixed Hours",
+      "womenOnly": "Women Only"
+    },
+    "womenOnly": "Women Only",
+    "separateHours": "Separate Hours",
+    "descriptionEn": "Description (English)",
+    "descriptionHe": "Description (Hebrew)",
+    "notes": "Notes",
+    "navigate": "Navigate",
+    "call": "Call",
+    "reportCorrection": "Report Correction"
   },
   "submit": {
     "title": "Submit a Mikvah",
@@ -99,6 +114,41 @@
     "loginError": "Error logging in",
     "registerError": "Error registering"
   },
+  "correction": {
+    "reportCorrection": "Report Correction",
+    "forMikvah": "For Mikvah",
+    "type": "Correction Type",
+    "field": "Field",
+    "selectField": "Select field to correct",
+    "currentValue": "Current Value",
+    "currentValuePlaceholder": "What is currently shown",
+    "suggestedValue": "Suggested Value",
+    "suggestedValuePlaceholder": "What it should be",
+    "description": "Description",
+    "descriptionPlaceholder": "Please explain the correction needed",
+    "contactEmail": "Contact Email (Optional)",
+    "contactEmailPlaceholder": "your@email.com",
+    "contactEmailHelp": "We'll contact you if we need more information",
+    "submit": "Submit Correction",
+    "submittedSuccessfully": "Correction submitted successfully!",
+    "submissionError": "Error submitting correction. Please try again.",
+    "types": {
+      "incorrectInfo": "Incorrect Information",
+      "missingInfo": "Missing Information",
+      "outdatedInfo": "Outdated Information",
+      "other": "Other"
+    },
+    "fields": {
+      "nameEn": "Name (English)",
+      "nameHe": "Name (Hebrew)",
+      "address": "Address",
+      "phone": "Phone",
+      "hours": "Hours",
+      "descriptionEn": "Description (English)",
+      "descriptionHe": "Description (Hebrew)",
+      "other": "Other"
+    }
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",
@@ -111,7 +161,8 @@
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No",
-    "language": "Language"
+    "language": "Language",
+    "submitting": "Submitting..."
   },
   "days": {
     "sunday": "Sunday",
