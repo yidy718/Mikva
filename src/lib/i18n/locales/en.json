@@ -20,6 +20,7 @@
     "away": "away"
   },
   "filters": {
+    "title": "Filters",
     "type": "Mikvah Type",
     "menOnly": "Men Only",
     "separateHours": "Separate Hours",
@@ -27,7 +28,26 @@
     "distance": "Distance",
     "openNow": "Open Now",
     "accessible": "Accessible",
-    "price": "Price Range"
+    "price": "Price Range",
+    "search": "Search",
+    "sortBy": "Sort by",
+    "nearest": "Nearest",
+    "name": "Name",
+    "newest": "Newest",
+    "clearFilters": "Clear Filters",
+    "activeFilters": "Active Filters"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "writeReview": "Write Review",
+    "noReviews": "No reviews yet. Be the first to review!",
+    "rating": "Rating",
+    "yourReview": "Your Review",
+    "comment": "Comment",
+    "submitReview": "Submit Review",
+    "helpful": "Helpful?",
+    "reviewDescription": "Share your experience to help others",
+    "reviewSubmitted": "Review submitted successfully!"
   },
   "mikvah": {
     "details": "Mikvah Details",
@@ -129,6 +149,8 @@
     "contactEmail": "Contact Email (Optional)",
     "contactEmailPlaceholder": "your@email.com",
     "contactEmailHelp": "We'll contact you if we need more information",
+    "photos": "Add Photos",
+    "photosHelp": "Upload up to 5 photos",
     "submit": "Submit Correction",
     "submittedSuccessfully": "Correction submitted successfully!",
     "submissionError": "Error submitting correction. Please try again.",

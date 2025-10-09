@@ -23,7 +23,7 @@ interface FilterPanelProps {
 
 export function FilterPanel({ filters, onFiltersChange, className }: FilterPanelProps) {
   const { t } = useTranslation()
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(true)
 
   const mikvahTypes = [
     { value: 'men_only', label: t('filters.menOnly') || 'Men Only' },
@@ -56,15 +56,15 @@ export function FilterPanel({ filters, onFiltersChange, className }: FilterPanel
   const activeFilterCount = filters.types.length + (filters.searchQuery ? 1 : 0) + (filters.maxDistance ? 1 : 0)
 
   return (
-    <div className={cn('bg-background border rounded-lg', className)}>
+    <div className={cn('bg-card', className)}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4" />
-          <h3 className="font-semibold">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <h3 className="font-medium text-sm">
             {t('filters.title') || 'Filters'}
             {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="ml-2">
+              <Badge variant="secondary" className="ml-2 text-xs">
                 {activeFilterCount}
               </Badge>
             )}
@@ -72,14 +72,15 @@ export function FilterPanel({ filters, onFiltersChange, className }: FilterPanel
         </div>
         <div className="flex items-center gap-2">
           {activeFilterCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-              <X className="h-4 w-4 mr-1" />
-              {t('filters.clear') || 'Clear'}
+            <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-8 text-xs">
+              <X className="h-3 w-3 mr-1" />
+              Clear
             </Button>
           )}
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
+            className="h-8 w-8 p-0"
             onClick={() => setIsExpanded(!isExpanded)}
           >
             {isExpanded ? (
@@ -93,20 +94,21 @@ export function FilterPanel({ filters, onFiltersChange, className }: FilterPanel
 
       {/* Filters Content */}
       {isExpanded && (
-        <div className="p-4 space-y-4">
+        <div className="mt-4 space-y-4">
           {/* Search */}
           <div className="space-y-2">
-            <Label>{t('filters.search') || 'Search'}</Label>
+            <Label className="text-xs font-medium">{t('filters.search') || 'Search'}</Label>
             <Input
-              placeholder={t('filters.searchPlaceholder') || 'Search mikvahs...'}
+              placeholder="Search mikvahs..."
               value={filters.searchQuery}
               onChange={(e) => onFiltersChange({ ...filters, searchQuery: e.target.value })}
+              className="h-9"
             />
           </div>
 
           {/* Sort */}
           <div className="space-y-2">
-            <Label>{t('filters.sortBy') || 'Sort By'}</Label>
+            <Label className="text-xs font-medium">{t('filters.sortBy') || 'Sort By'}</Label>
             <Select
               value={filters.sortBy}
               onValueChange={(value: any) => onFiltersChange({ ...filters, sortBy: value })}
@@ -126,13 +128,13 @@ export function FilterPanel({ filters, onFiltersChange, className }: FilterPanel
 
           {/* Mikvah Type */}
           <div className="space-y-2">
-            <Label>{t('filters.type') || 'Type'}</Label>
+            <Label className="text-xs font-medium">{t('filters.type') || 'Type'}</Label>
             <div className="flex flex-wrap gap-2">
               {mikvahTypes.map(type => (
                 <Badge
                   key={type.value}
                   variant={filters.types.includes(type.value) ? 'default' : 'outline'}
-                  className="cursor-pointer"
+                  className="cursor-pointer text-xs"
                   onClick={() => toggleType(type.value)}
                 >
                   {type.label}
@@ -146,7 +148,7 @@ export function FilterPanel({ filters, onFiltersChange, className }: FilterPanel
 
           {/* Distance Filter */}
           <div className="space-y-2">
-            <Label>{t('filters.maxDistance') || 'Max Distance (km)'}</Label>
+            <Label className="text-xs font-medium">{t('filters.maxDistance') || 'Max Distance (km)'}</Label>
             <Input
               type="number"
               placeholder="Any distance"
@@ -155,6 +157,7 @@ export function FilterPanel({ filters, onFiltersChange, className }: FilterPanel
                 ...filters,
                 maxDistance: e.target.value ? Number(e.target.value) : undefined
               })}
+              className="h-9"
             />
           </div>
         </div>
@@ -162,25 +165,25 @@ export function FilterPanel({ filters, onFiltersChange, className }: FilterPanel
 
       {/* Active Filters Chips */}
       {activeFilterCount > 0 && !isExpanded && (
-        <div className="p-4 pt-0">
+        <div className="mt-3">
           <div className="flex flex-wrap gap-2">
             {filters.types.map(type => {
               const typeLabel = mikvahTypes.find(t => t.value === type)?.label
               return (
-                <Badge key={type} variant="secondary" className="cursor-pointer" onClick={() => toggleType(type)}>
+                <Badge key={type} variant="secondary" className="cursor-pointer text-xs" onClick={() => toggleType(type)}>
                   {typeLabel}
                   <X className="h-3 w-3 ml-1" />
                 </Badge>
               )
             })}
             {filters.searchQuery && (
-              <Badge variant="secondary" className="cursor-pointer" onClick={() => onFiltersChange({ ...filters, searchQuery: '' })}>
+              <Badge variant="secondary" className="cursor-pointer text-xs" onClick={() => onFiltersChange({ ...filters, searchQuery: '' })}>
                 Search: {filters.searchQuery}
                 <X className="h-3 w-3 ml-1" />
               </Badge>
             )}
             {filters.maxDistance && (
-              <Badge variant="secondary" className="cursor-pointer" onClick={() => onFiltersChange({ ...filters, maxDistance: undefined })}>
+              <Badge variant="secondary" className="cursor-pointer text-xs" onClick={() => onFiltersChange({ ...filters, maxDistance: undefined })}>
                 Within {filters.maxDistance}km
                 <X className="h-3 w-3 ml-1" />
               </Badge>

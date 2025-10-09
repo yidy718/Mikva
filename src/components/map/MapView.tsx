@@ -290,15 +290,15 @@ export function MapView({
 
       {/* List View */}
       {viewMode === 'list' && (
-        <div className="absolute inset-0 bg-background z-20">
+        <div className="absolute top-16 left-4 right-4 bottom-4 bg-background rounded-lg shadow-lg border z-20 md:right-auto md:w-96">
           <div className="h-full flex flex-col">
             <div className="p-4 border-b">
               <h2 className="text-xl font-semibold">Mikvahs ({filteredMikvahs.length})</h2>
             </div>
-            <div className="p-4">
+            <div className="p-4 border-b">
               <FilterPanel filters={filters} onFiltersChange={setFilters} />
             </div>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden px-4">
               <MikvahListView
                 mikvahs={filteredMikvahs}
                 onMikvahSelect={handleMikvahSelect}
