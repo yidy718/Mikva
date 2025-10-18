@@ -252,26 +252,6 @@ export function MapView({
 
   return (
     <div className="relative w-full h-full">
-      {showSearch && (
-        <div className="absolute top-4 left-4 right-20 sm:right-4 sm:max-w-md z-10">
-          <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-2">
-            <AddressInput
-              value={searchQuery}
-              onChange={(value) => {
-                setSearchQuery(value)
-                if (value.trim()) {
-                  handleSearch(value)
-                }
-              }}
-              onLocationSelect={handleLocationSelect}
-              placeholder="Search for cities and places worldwide..."
-              proximity={[viewState.longitude, viewState.latitude]}
-              searchTypes={['place', 'locality', 'region', 'country']}
-            />
-          </div>
-        </div>
-      )}
-
       {/* View Mode Toggle */}
       <div className="absolute top-4 left-4 z-10">
         <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-1">
@@ -313,6 +293,26 @@ export function MapView({
           </div>
         </div>
       </div>
+
+      {showSearch && (
+        <div className="absolute top-4 left-20 sm:left-24 right-4 sm:max-w-md z-10">
+          <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-2">
+            <AddressInput
+              value={searchQuery}
+              onChange={(value) => {
+                setSearchQuery(value)
+                if (value.trim()) {
+                  handleSearch(value)
+                }
+              }}
+              onLocationSelect={handleLocationSelect}
+              placeholder="Search for cities and places worldwide..."
+              proximity={[viewState.longitude, viewState.latitude]}
+              searchTypes={['place', 'locality', 'region', 'country']}
+            />
+          </div>
+        </div>
+      )}
 
       {/* List View */}
       {viewMode === 'list' && (
