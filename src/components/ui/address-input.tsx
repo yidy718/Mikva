@@ -54,14 +54,12 @@ export function AddressInput({
 
       setIsLoading(true)
       try {
-        console.log('Searching for:', query) // Debug log
         const results = await geocodingService.searchAddress(query, {
           country,
           proximity,
           types: searchTypes,
           limit: 5,
         })
-        console.log('Search results:', results) // Debug log
         setSuggestions(results)
       } catch (error) {
         console.error('Address search error:', error)

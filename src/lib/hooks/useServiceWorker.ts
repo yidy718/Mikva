@@ -34,7 +34,9 @@ export const useServiceWorker = () => {
           scope: '/',
         })
 
-        console.log('Service Worker registered:', registration)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Service Worker registered:', registration)
+        }
 
         // Handle updates
         registration.addEventListener('updatefound', () => {
@@ -82,7 +84,9 @@ export const useServiceWorker = () => {
 
         // Listen for controller change (when new SW takes control)
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-          console.log('Service Worker controller changed')
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Service Worker controller changed')
+          }
           setSwState(prev => ({
             ...prev,
             isActive: true,
@@ -93,14 +97,18 @@ export const useServiceWorker = () => {
 
         // Listen for messages from SW
         navigator.serviceWorker.addEventListener('message', (event) => {
-          console.log('Message from Service Worker:', event.data)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Message from Service Worker:', event.data)
+          }
           if (event.data?.type === 'SYNC_COMPLETED') {
             // Handle sync completion if needed
           }
         })
 
       } catch (error) {
-        console.error('Service Worker registration failed:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Service Worker registration failed:', error)
+        }
         setSwState(prev => ({ ...prev, isSupported: false }))
       }
     }

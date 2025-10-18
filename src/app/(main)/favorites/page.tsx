@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next'
 import { useFavorites } from '@/lib/hooks/useFavorites'
 import { useMikvahs } from '@/lib/hooks/useMikvahs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { LoadingScreen } from '@/components/ui/spinner'
 import { AdminMikvahCard } from '@/components/admin/AdminMikvahCard'
-import { Heart } from 'lucide-react'
+import { Heart, MapPin } from 'lucide-react'
+import Link from 'next/link'
 
 export default function FavoritesPage() {
   const { t } = useTranslation()
@@ -43,9 +45,15 @@ export default function FavoritesPage() {
             <h3 className="text-lg font-semibold mb-2">
               {t('favorites.empty.title', 'No favorites yet')}
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground mb-6">
               {t('favorites.empty.description', 'Start exploring and save your favorite mikvahs for easy access')}
             </p>
+            <Button asChild>
+              <Link href="/map">
+                <MapPin className="h-4 w-4 mr-2" />
+                Explore Mikvahs
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       ) : (

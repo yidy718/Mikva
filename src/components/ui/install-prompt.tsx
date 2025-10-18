@@ -65,15 +65,14 @@ export function InstallPrompt() {
       const { outcome } = await deferredPrompt.userChoice
 
       if (outcome === 'accepted') {
-        console.log('User accepted the install prompt')
         setShowPrompt(false)
-      } else {
-        console.log('User dismissed the install prompt')
       }
 
       setDeferredPrompt(null)
     } catch (error) {
-      console.error('Install prompt failed:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Install prompt failed:', error)
+      }
     }
   }
 

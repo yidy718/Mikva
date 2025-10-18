@@ -1,8 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
-import { Database } from '@/lib/supabase/database.types'
-
-type Mikvah = Database['public']['Tables']['mikvahs']['Row']
+import type { Mikvah } from '@/lib/types'
 
 export const useMikvahs = () => {
   const supabase = createClient()

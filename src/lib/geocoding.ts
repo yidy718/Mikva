@@ -32,7 +32,6 @@ class GeocodingService {
     }
     // Clean the token by removing any newlines or whitespace
     this.mapboxToken = token.trim().replace(/\n/g, '').replace(/\r/g, '')
-    console.log('GeocodingService: Using token:', this.mapboxToken.substring(0, 20) + '...')
   }
 
   async searchAddress(
@@ -40,8 +39,6 @@ class GeocodingService {
     options: GeocodingOptions = {}
   ): Promise<GeocodingResult[]> {
     try {
-      console.log('GeocodingService: Searching for', query, 'with options', options)
-      
       const params = new URLSearchParams({
         access_token: this.mapboxToken,
         q: query,
@@ -63,21 +60,16 @@ class GeocodingService {
       }
 
       const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?${params}`
-      console.log('GeocodingService: Making request to', url)
-      
       const response = await fetch(url)
 
       if (!response.ok) {
-        console.error('GeocodingService: API error', response.status, response.statusText)
         if (response.status === 401) {
-          console.error('GeocodingService: Authentication failed. Check your Mapbox token.')
           throw new Error('Mapbox authentication failed. Please check your token.')
         }
         throw new Error(`Geocoding API error: ${response.status}`)
       }
 
       const data = await response.json()
-      console.log('GeocodingService: API response', data)
       
       return data.features.map((feature: any) => ({
         id: feature.id,

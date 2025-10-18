@@ -84,3 +84,32 @@
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(0, 0, 0, 0.2);
 }
+
+/* Mobile Touch Targets - Minimum 44px for better accessibility */
+@media (max-width: 768px) {
+  /* Ensure all buttons have minimum touch target */
+  button:not(.no-touch-target) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Links and interactive elements */
+  a:not(.no-touch-target),
+  [role="button"]:not(.no-touch-target) {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Map markers need larger touch targets */
+  .mapboxgl-marker {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  /* Cluster markers */
+  .mapboxgl-marker button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

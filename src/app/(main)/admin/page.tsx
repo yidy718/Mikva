@@ -11,15 +11,15 @@ import { AdminMikvahList } from '@/components/admin/AdminMikvahList'
 import { AdminReviewList } from '@/components/admin/AdminReviewList'
 import { AdminUserManagement } from '@/components/admin/AdminUserManagement'
 import { AdminEditDialog } from '@/components/admin/AdminEditDialog'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useAdminMikvahs, useAdminUsers, useApproveMikvah, useRejectMikvah, useDeleteMikvah, useUpdateUserRole } from '@/lib/hooks/useAdmin'
 import { useAdminReviews, useApproveReview, useDeleteReview } from '@/lib/hooks/useAdmin'
-import type { Database } from '@/lib/supabase/database.types'
-
-type Mikvah = Database['public']['Tables']['mikvahs']['Row']
+import type { Mikvah } from '@/lib/types'
 
 export default function AdminPage() {
   const { t } = useTranslation()
   const [editingMikvah, setEditingMikvah] = useState<Mikvah | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'mikvah' | 'review', id: string } | null>(null)
   const supabase = createClient()
 
   // React Query hooks for data fetching
@@ -103,7 +103,7 @@ export default function AdminPage() {
             showActions="approved"
             emptyMessage="No approved mikvahs yet"
             onEdit={handleEditMikvah}
-            onDelete={(id) => deleteMikvah.mutate(id)}
+            onDelete={(id) => setDeleteConfirm({ type: 'mikvah', id })}
           />
         </TabsContent>
 
@@ -111,7 +111,7 @@ export default function AdminPage() {
           <AdminReviewList
             reviews={reviews}
             onApprove={(id) => approveReview.mutate(id)}
-            onDelete={(id) => deleteReview.mutate(id)}
+            onDelete={(id) => setDeleteConfirm({ type: 'review', id })}
           />
         </TabsContent>
 
@@ -130,6 +130,26 @@ export default function AdminPage() {
         open={!!editingMikvah}
         onOpenChange={(open) => !open && setEditingMikvah(null)}
         onSave={handleSaveEdit}
+      />
+
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        onConfirm={() => {
+          if (deleteConfirm) {
+            if (deleteConfirm.type === 'mikvah') {
+              deleteMikvah.mutate(deleteConfirm.id)
+            } else {
+              deleteReview.mutate(deleteConfirm.id)
+            }
+            setDeleteConfirm(null)
+          }
+        }}
+        title={`Delete ${deleteConfirm?.type === 'mikvah' ? 'Mikvah' : 'Review'}?`}
+        description={`Are you sure you want to delete this ${deleteConfirm?.type}? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
       />
     </div>
   )

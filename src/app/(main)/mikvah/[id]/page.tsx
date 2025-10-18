@@ -6,13 +6,11 @@ import { useParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
-import { Database } from '@/lib/supabase/database.types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Navigation, Phone, MapPin, Clock, DollarSign, Share2 } from 'lucide-react'
-
-type Mikvah = Database['public']['Tables']['mikvahs']['Row']
+import type { Mikvah } from '@/lib/types'
 
 export default function MikvahDetailPage() {
   const { t } = useTranslation()

@@ -1,5 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { AdminReviewCard } from './AdminReviewCard'
+import { MessageSquare } from 'lucide-react'
 
 interface AdminReviewListProps {
   reviews: Array<{
@@ -21,8 +22,12 @@ export function AdminReviewList({ reviews, onApprove, onDelete }: AdminReviewLis
   if (reviews.length === 0) {
     return (
       <Card>
-        <CardContent className="py-8 text-center text-muted-foreground">
-          No pending reviews
+        <CardContent className="py-12 text-center">
+          <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No reviews to moderate</h3>
+          <p className="text-muted-foreground">
+            New reviews will appear here for approval
+          </p>
         </CardContent>
       </Card>
     )

@@ -16,6 +16,20 @@ interface AdminUserManagementProps {
 export function AdminUserManagement({ users, onToggleRole }: AdminUserManagementProps) {
   const { t } = useTranslation()
 
+  if (users.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center">
+          <UserCog className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No users yet</h3>
+          <p className="text-muted-foreground">
+            Users will appear here once they sign up
+          </p>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card>
       <CardHeader>

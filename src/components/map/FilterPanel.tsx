@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Filter, X, ChevronDown, ChevronUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -23,7 +23,19 @@ interface FilterPanelProps {
 
 export function FilterPanel({ filters, onFiltersChange, className }: FilterPanelProps) {
   const { t } = useTranslation()
-  const [isExpanded, setIsExpanded] = useState(true)
+  // Default to collapsed on mobile, expanded on desktop
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  useEffect(() => {
+    // Check if desktop on mount
+    const checkIfDesktop = () => {
+      setIsExpanded(window.innerWidth >= 768)
+    }
+    checkIfDesktop()
+
+    window.addEventListener('resize', checkIfDesktop)
+    return () => window.removeEventListener('resize', checkIfDesktop)
+  }, [])
 
   const mikvahTypes = [
     { value: 'men_only', label: t('filters.menOnly') || 'Men Only' },

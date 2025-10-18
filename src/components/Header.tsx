@@ -92,16 +92,20 @@ export function Header() {
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
                 onClick={toggleLanguage}
                 aria-label={`Switch to ${i18n.language === 'en' ? 'Hebrew' : 'English'}`}
+                className="gap-2"
               >
-                <Globe className="h-5 w-5" aria-hidden="true" />
-                <span className="sr-only">Switch to {i18n.language === 'en' ? 'Hebrew' : 'English'}</span>
+                <Globe className="h-4 w-4" aria-hidden="true" />
+                <span className="font-semibold text-xs uppercase">
+                  {i18n.language === 'en' ? 'EN' : 'HE'}
+                </span>
+                <span className="sr-only">Current language: {i18n.language === 'en' ? 'English' : 'Hebrew'}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{i18n.language === 'en' ? 'Switch to Hebrew' : 'Switch to English'}</p>
+              <p>{i18n.language === 'en' ? 'Switch to Hebrew (עברית)' : 'Switch to English'}</p>
             </TooltipContent>
           </Tooltip>
 
@@ -170,16 +174,20 @@ export function Header() {
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
                 onClick={toggleLanguage}
                 aria-label={`Switch to ${i18n.language === 'en' ? 'Hebrew' : 'English'}`}
+                className="gap-2"
               >
-                <Globe className="h-5 w-5" aria-hidden="true" />
-                <span className="sr-only">Switch to {i18n.language === 'en' ? 'Hebrew' : 'English'}</span>
+                <Globe className="h-4 w-4" aria-hidden="true" />
+                <span className="font-semibold text-xs uppercase">
+                  {i18n.language === 'en' ? 'EN' : 'HE'}
+                </span>
+                <span className="sr-only">Current language: {i18n.language === 'en' ? 'English' : 'Hebrew'}</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{i18n.language === 'en' ? 'Switch to Hebrew' : 'Switch to English'}</p>
+              <p>{i18n.language === 'en' ? 'Switch to Hebrew (עברית)' : 'Switch to English'}</p>
             </TooltipContent>
           </Tooltip>
 

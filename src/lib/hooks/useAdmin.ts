@@ -1,10 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
-import { Database } from '@/lib/supabase/database.types'
-
-type Mikvah = Database['public']['Tables']['mikvahs']['Row']
-type UserRole = Database['public']['Tables']['user_roles']['Row']
+import type { Mikvah, UserRole } from '@/lib/types'
 
 export const useAdminMikvahs = () => {
   const supabase = createClient()
@@ -196,10 +193,6 @@ export const useDeleteReview = () => {
 
   return useMutation({
     mutationFn: async (reviewId: string) => {
-      if (!confirm('Are you sure you want to delete this review?')) {
-        throw new Error('User cancelled')
-      }
-
       const { error } = await supabase
         .from('reviews')
         .delete()

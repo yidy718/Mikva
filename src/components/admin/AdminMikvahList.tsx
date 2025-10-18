@@ -1,9 +1,8 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { AdminMikvahCard } from './AdminMikvahCard'
 import { useTranslation } from 'react-i18next'
-import type { Database } from '@/lib/supabase/database.types'
-
-type Mikvah = Database['public']['Tables']['mikvahs']['Row']
+import { MapPin, CheckCircle } from 'lucide-react'
+import type { Mikvah } from '@/lib/types'
 
 interface AdminMikvahListProps {
   mikvahs: Mikvah[]
@@ -27,10 +26,17 @@ export function AdminMikvahList({
   const { t } = useTranslation()
 
   if (mikvahs.length === 0) {
+    const Icon = showActions === 'pending' ? MapPin : CheckCircle
+    const description = showActions === 'pending'
+      ? 'New submissions will appear here for review'
+      : 'Approved mikvahs will be displayed to users'
+
     return (
       <Card>
-        <CardContent className="py-8 text-center text-muted-foreground">
-          {emptyMessage}
+        <CardContent className="py-12 text-center">
+          <Icon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">{emptyMessage}</h3>
+          <p className="text-muted-foreground">{description}</p>
         </CardContent>
       </Card>
     )

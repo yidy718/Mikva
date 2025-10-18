@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { FileText, MapPin as MapPinIcon, Info, Image as ImageIcon } from 'lucide-react'
+import { FileText, MapPin as MapPinIcon, Info, Image as ImageIcon, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { mikvahSubmissionSchema, type MikvahSubmissionData } from '@/lib/validations/mikvah'
 import { Button } from '@/components/ui/button'
@@ -67,7 +67,6 @@ export default function SubmitPage() {
 
   const handleLocationSelect = (result: GeocodingResult) => {
     const [lng, lat] = result.center
-    console.log('Location selected:', result) // Debug log
     setSelectedLocation({ lng, lat })
     setValue('longitude', lng)
     setValue('latitude', lat)
@@ -82,6 +81,31 @@ export default function SubmitPage() {
     }
   }
 
+  const handlePhotoRemove = (index: number) => {
+    setPhotos(photos.filter((_, i) => i !== index))
+  }
+
+  const isStepValid = (stepNumber: number): boolean => {
+    switch (stepNumber) {
+      case 1:
+        // Step 1 requires name_en and address
+        const nameEn = watch('name_en')
+        const addressValue = watch('address')
+        return !!nameEn && nameEn.trim().length > 0 && !!addressValue && addressValue.trim().length > 0
+      case 2:
+        // Step 2 requires location selection
+        return !!selectedLocation
+      case 3:
+        // Step 3 has no required fields
+        return true
+      case 4:
+        // Step 4 has no required fields
+        return true
+      default:
+        return false
+    }
+  }
+
   const uploadPhotos = async (userId: string): Promise<string[]> => {
     const uploadedUrls: string[] = []
 
@@ -91,9 +115,7 @@ export default function SubmitPage() {
         .from('mikvah-photos')
         .upload(fileName, photo)
 
-      if (error) {
-        console.error('Error uploading photo:', error)
-      } else {
+      if (!error) {
         const { data: { publicUrl } } = supabase.storage
           .from('mikvah-photos')
           .getPublicUrl(data.path)
@@ -232,7 +254,14 @@ export default function SubmitPage() {
             {/* Step 2: Location */}
             {step === 2 && (
               <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <p className="text-sm text-muted-foreground">{t('submit.selectLocation')}</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">{t('submit.selectLocation')}</p>
+                  {!selectedLocation && (
+                    <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                      Click on the map to select location
+                    </span>
+                  )}
+                </div>
                 <div className="h-[400px] rounded-lg overflow-hidden border">
                   <MapView
                     mikvahs={[]}
@@ -242,11 +271,17 @@ export default function SubmitPage() {
                     onLocationSelect={handleLocationSelect}
                   />
                 </div>
-                {selectedLocation && (
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Selected Location:</p>
-                    <p className="text-sm text-muted-foreground">
+                {selectedLocation ? (
+                  <div className="space-y-2 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
+                    <p className="text-sm font-medium text-green-900 dark:text-green-100">✓ Location Selected</p>
+                    <p className="text-xs text-green-700 dark:text-green-300">
                       {address || `${selectedLocation.lat.toFixed(6)}, ${selectedLocation.lng.toFixed(6)}`}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-3 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg">
+                    <p className="text-sm text-amber-900 dark:text-amber-100">
+                      Please click on the map or search for an address to select a location
                     </p>
                   </div>
                 )}
@@ -293,12 +328,21 @@ export default function SubmitPage() {
                 {photos.length > 0 && (
                   <div className="grid grid-cols-3 gap-4">
                     {photos.map((photo, idx) => (
-                      <div key={idx} className="relative aspect-square">
+                      <div key={idx} className="relative aspect-square group">
                         <img
                           src={URL.createObjectURL(photo)}
                           alt={`Preview ${idx + 1}`}
                           className="w-full h-full object-cover rounded-lg"
                         />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handlePhotoRemove(idx)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
                     ))}
                   </div>
@@ -314,7 +358,12 @@ export default function SubmitPage() {
                 </Button>
               )}
               {step < 4 ? (
-                <Button type="button" onClick={() => setStep(step + 1)} className="ml-auto">
+                <Button
+                  type="button"
+                  onClick={() => setStep(step + 1)}
+                  className="ml-auto"
+                  disabled={!isStepValid(step)}
+                >
                   {t('submit.next')}
                 </Button>
               ) : (

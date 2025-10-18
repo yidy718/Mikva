@@ -1,10 +1,8 @@
 'use client'
 
 import { Marker } from 'react-map-gl'
-import { Database } from '@/lib/supabase/database.types'
 import { MikvahMarker, ClusterMarker } from './MikvahMarker'
-
-type Mikvah = Database['public']['Tables']['mikvahs']['Row']
+import type { Mikvah } from '@/lib/types'
 
 interface MapClustersProps {
   clusters: any[]

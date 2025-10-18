@@ -4,9 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Check, X, Edit, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { Database } from '@/lib/supabase/database.types'
-
-type Mikvah = Database['public']['Tables']['mikvahs']['Row']
+import type { Mikvah } from '@/lib/types'
 
 interface AdminMikvahCardProps {
   mikvah: Mikvah

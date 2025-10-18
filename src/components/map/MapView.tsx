@@ -5,7 +5,6 @@ import Map, { Marker, Popup, NavigationControl, GeolocateControl } from 'react-m
 import type { MapRef } from 'react-map-gl'
 import Supercluster from 'supercluster'
 import { MapPin, Search, X, List, Map as MapIcon } from 'lucide-react'
-import { Database } from '@/lib/supabase/database.types'
 import { geocodingService, type GeocodingResult } from '@/lib/geocoding'
 import { AddressInput } from '@/components/ui/address-input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -14,8 +13,7 @@ import { MikvahListView } from './MikvahListView'
 import { MikvahDetailsModal } from './MikvahDetailsModal'
 import { MikvahMarker, ClusterMarker } from './MikvahMarker'
 import { FilterPanel, type FilterOptions } from './FilterPanel'
-
-type Mikvah = Database['public']['Tables']['mikvahs']['Row']
+import type { Mikvah } from '@/lib/types'
 
 interface MapViewProps {
   mikvahs: Mikvah[]
@@ -93,12 +91,14 @@ export function MapView({
     return result
   }, [mikvahs, filters])
 
-  // Create supercluster index
-  const supercluster = useRef(
-    new Supercluster({
-      radius: 75,
-      maxZoom: 16,
-    })
+  // Create supercluster index (memoized to prevent recreation on every render)
+  const supercluster = useMemo(
+    () =>
+      new Supercluster({
+        radius: 75,
+        maxZoom: 16,
+      }),
+    []
   )
 
   useEffect(() => {
