@@ -92,13 +92,11 @@ export function MapView({
   }, [mikvahs, filters])
 
   // Create supercluster index (memoized to prevent recreation on every render)
-  const supercluster = useMemo(
-    () =>
-      new Supercluster({
-        radius: 75,
-        maxZoom: 16,
-      }),
-    []
+  const supercluster = useRef(
+    new Supercluster({
+      radius: 75,
+      maxZoom: 16,
+    })
   )
 
   useEffect(() => {
