@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -30,11 +30,7 @@ export function MikvahListView({ mikvahs, onMikvahSelect, selectedMikvahId, isLo
   const [mikvahsWithRatings, setMikvahsWithRatings] = useState<MikvahWithDistance[]>(mikvahs)
   const supabase = createClient()
 
-  useEffect(() => {
-    loadRatings()
-  }, [mikvahs])
-
-  const loadRatings = async () => {
+  const loadRatings = useCallback(async () => {
     const mikvahIds = mikvahs.map(m => m.id)
 
     const { data, error } = await supabase
@@ -69,7 +65,11 @@ export function MikvahListView({ mikvahs, onMikvahSelect, selectedMikvahId, isLo
 
       setMikvahsWithRatings(enriched)
     }
-  }
+  }, [mikvahs, supabase])
+
+  useEffect(() => {
+    loadRatings()
+  }, [loadRatings])
 
   const getMikvahTypeLabel = (type: string) => {
     switch (type) {

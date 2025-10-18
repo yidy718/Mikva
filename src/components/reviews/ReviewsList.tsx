@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ThumbsUp, ThumbsDown } from 'lucide-react'
 import { StarRating } from '@/components/ui/star-rating'
@@ -32,9 +32,9 @@ export function ReviewsList({ mikvahId }: ReviewsListProps) {
   useEffect(() => {
     loadReviews()
     loadUserVotes()
-  }, [mikvahId])
+  }, [mikvahId, loadReviews, loadUserVotes])
 
-  const loadReviews = async () => {
+  const loadReviews = useCallback(async () => {
     setIsLoading(true)
     const { data, error } = await supabase
       .from('reviews')
@@ -49,9 +49,9 @@ export function ReviewsList({ mikvahId }: ReviewsListProps) {
       setReviews(data || [])
     }
     setIsLoading(false)
-  }
+  }, [mikvahId, supabase])
 
-  const loadUserVotes = async () => {
+  const loadUserVotes = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
@@ -67,7 +67,7 @@ export function ReviewsList({ mikvahId }: ReviewsListProps) {
       })
       setUserVotes(votes)
     }
-  }
+  }, [supabase])
 
   const handleVote = async (reviewId: string, isHelpful: boolean) => {
     const { data: { user } } = await supabase.auth.getUser()

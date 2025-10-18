@@ -6,7 +6,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
 // Placeholder for AccessibilityProvider
-const AccessibilityProvider: React.FC<{ children: React.ReactNode; config?: any }> = ({ children }) => <>{children}</>
+const AccessibilityProvider: React.FC<{ children: React.ReactNode; config?: any }> = ({ children }) => React.createElement(React.Fragment, null, children)
 
 // Higher-order component for adding common props
 export function withCommonProps<P extends object>(

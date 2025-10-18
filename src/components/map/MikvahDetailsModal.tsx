@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -48,13 +48,7 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
   const [reviewCount, setReviewCount] = useState(0)
   const supabase = createClient()
 
-  useEffect(() => {
-    if (mikvah?.id) {
-      loadRatings()
-    }
-  }, [mikvah?.id])
-
-  const loadRatings = async () => {
+  const loadRatings = useCallback(async () => {
     if (!mikvah) return
 
     const { data, error } = await supabase
@@ -71,7 +65,13 @@ export function MikvahDetailsModal({ mikvah, isOpen, onClose, onNavigate }: Mikv
       setAverageRating(null)
       setReviewCount(0)
     }
-  }
+  }, [mikvah, supabase])
+
+  useEffect(() => {
+    if (mikvah?.id) {
+      loadRatings()
+    }
+  }, [mikvah?.id, loadRatings])
 
   if (!mikvah) return null
 

@@ -169,10 +169,10 @@ export function useFormErrorHandling() {
     setGeneralError(null)
   }, [])
 
-  const setGeneralError = useCallback((message: string) => {
+  const setGeneralErrorMessage = useCallback((message: string) => {
     setGeneralError(message)
     toast.error(message)
-  }, [])
+  }, [setGeneralError])
 
   const hasErrors = Object.keys(fieldErrors).length > 0 || !!generalError
 
@@ -182,7 +182,7 @@ export function useFormErrorHandling() {
     setFieldError,
     clearFieldError,
     clearAllErrors,
-    setGeneralError,
+    setGeneralError: setGeneralErrorMessage,
     hasErrors,
   }
 }
