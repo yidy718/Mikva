@@ -47,24 +47,24 @@ export function MapControls({
   return (
     <>
       {/* View Mode Toggle */}
-      <div className="absolute top-4 left-4 z-10">
-        <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-1">
-          <div className="flex">
+      <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 animate-slide-down">
+        <div className="bg-background/90 dark:bg-background/80 backdrop-blur-md border border-border/50 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-0.5">
+          <div className="flex gap-0.5">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   onClick={() => onViewModeChange('map')}
-                  className={`px-3 py-2 text-sm rounded-md transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                  className={`px-3 py-2 text-sm rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center group ${
                     viewMode === 'map'
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'hover:bg-muted'
+                      ? 'bg-primary text-primary-foreground shadow-md scale-105'
+                      : 'hover:bg-muted/80 hover:scale-105'
                   }`}
                   aria-label="Map View"
                 >
-                  <MapIcon className="h-4 w-4" />
+                  <MapIcon className={`h-4 w-4 transition-transform duration-300 ${viewMode === 'map' ? 'scale-110' : 'group-hover:scale-110'}`} />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent side="bottom" className="animate-scale-in">
                 <p>Map View</p>
               </TooltipContent>
             </Tooltip>
@@ -72,17 +72,17 @@ export function MapControls({
               <TooltipTrigger asChild>
                 <button
                   onClick={() => onViewModeChange('list')}
-                  className={`px-3 py-2 text-sm rounded-md transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                  className={`px-3 py-2 text-sm rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center group ${
                     viewMode === 'list'
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'hover:bg-muted'
+                      ? 'bg-primary text-primary-foreground shadow-md scale-105'
+                      : 'hover:bg-muted/80 hover:scale-105'
                   }`}
                   aria-label="List View"
                 >
-                  <List className="h-4 w-4" />
+                  <List className={`h-4 w-4 transition-transform duration-300 ${viewMode === 'list' ? 'scale-110' : 'group-hover:scale-110'}`} />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent side="bottom" className="animate-scale-in">
                 <p>List View</p>
               </TooltipContent>
             </Tooltip>
@@ -92,8 +92,8 @@ export function MapControls({
 
       {/* Search Bar */}
       {showSearch && (
-        <div className="absolute top-4 left-4 right-4 sm:left-28 sm:max-w-md z-10 mt-16 sm:mt-0">
-          <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-2">
+        <div className="absolute top-[68px] left-3 right-3 sm:top-4 sm:left-28 sm:right-auto sm:max-w-md z-10 animate-slide-down">
+          <div className="bg-background/90 dark:bg-background/80 backdrop-blur-md border border-border/50 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 px-1 py-0.5 sm:px-1.5 sm:py-1">
             <AddressInput
               value={searchQuery}
               onChange={(value) => {
@@ -103,7 +103,7 @@ export function MapControls({
                 }
               }}
               onLocationSelect={onLocationSelect}
-              placeholder="Search for cities and places worldwide..."
+              placeholder="Search worldwide..."
               proximity={proximity}
               searchTypes={['place', 'locality', 'region', 'country']}
             />

@@ -149,14 +149,14 @@ export function AddressInput({
   return (
     <div className={cn("relative", className)}>
       {label && (
-        <Label htmlFor="address-input" className="text-sm font-medium">
+        <Label htmlFor="address-input" className="text-sm font-medium mb-2">
           {label}
         </Label>
       )}
-      
+
       <div className="relative">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             ref={inputRef}
             id="address-input"
@@ -168,29 +168,29 @@ export function AddressInput({
             onBlur={handleBlur}
             placeholder={placeholder}
             disabled={disabled}
-            className="pl-10 pr-10"
+            className="pl-9 sm:pl-10 pr-10 h-10 sm:h-11 text-sm border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
             autoComplete="off"
           />
           {isLoading && (
-            <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+            <Loader2 className="absolute right-2.5 sm:right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
           )}
         </div>
 
         {showSuggestions && suggestions.length > 0 && (
           <div
             ref={suggestionsRef}
-            className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto"
+            className="absolute z-50 w-full mt-2 bg-background/95 dark:bg-background/90 backdrop-blur-md border border-border/50 rounded-xl shadow-2xl max-h-60 overflow-y-auto animate-slide-down"
           >
             {suggestions.map((suggestion, index) => (
               <div
                 key={suggestion.id}
                 className={cn(
-                  "flex items-start gap-3 p-3 cursor-pointer hover:bg-muted/50 transition-colors",
-                  index === selectedIndex && "bg-muted"
+                  "flex items-start gap-2.5 p-2.5 sm:p-3 cursor-pointer hover:bg-muted/60 transition-all duration-200 first:rounded-t-xl last:rounded-b-xl",
+                  index === selectedIndex && "bg-muted/80"
                 )}
                 onClick={() => handleSuggestionClick(suggestion)}
               >
-                <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <MapPin className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">
                     {suggestion.place_name}
