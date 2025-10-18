@@ -2,7 +2,8 @@
 
 import React from 'react'
 import { Button } from '@/components/ui/button'
-import { AlertTriangle, RefreshCw } from 'lucide-react'
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
+import Link from 'next/link'
 
 interface ErrorBoundaryState {
   hasError: boolean
@@ -54,36 +55,77 @@ interface DefaultErrorFallbackProps {
 }
 
 function DefaultErrorFallback({ error, retry }: DefaultErrorFallbackProps) {
+  const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  
   return (
-    <div className="min-h-[400px] flex items-center justify-center p-4">
-      <div className="text-center max-w-md">
-        <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-        <p className="text-muted-foreground mb-4">
-          We encountered an unexpected error. Please try refreshing the page.
+    <div 
+      className="min-h-[400px] flex items-center justify-center p-4" 
+      role="alert" 
+      aria-live="assertive"
+      aria-labelledby="error-title"
+      aria-describedby="error-description"
+    >
+      <div className="text-center max-w-md animate-fade-in">
+        <AlertTriangle 
+          className="h-12 w-12 text-destructive mx-auto mb-4" 
+          aria-hidden="true"
+        />
+        <h2 id="error-title" className="text-xl font-semibold mb-2">
+          Something went wrong
+        </h2>
+        <p id="error-description" className="text-muted-foreground mb-4">
+          We encountered an unexpected error. Please try refreshing the page or contact support if the problem persists.
         </p>
         <div className="space-y-2">
-          <Button onClick={retry} className="w-full">
-            <RefreshCw className="h-4 w-4 mr-2" />
+          <Button 
+            onClick={retry} 
+            className="w-full min-h-[44px]"
+            aria-label="Try to recover from the error"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" aria-hidden="true" />
             Try Again
           </Button>
           <Button
             variant="outline"
             onClick={() => window.location.reload()}
-            className="w-full"
+            className="w-full min-h-[44px]"
+            aria-label="Refresh the entire page"
           >
             Refresh Page
           </Button>
+          <Link href="/map">
+            <Button
+              variant="ghost"
+              className="w-full min-h-[44px]"
+              aria-label="Go back to the main map page"
+            >
+              <Home className="h-4 w-4 mr-2" aria-hidden="true" />
+              Back to Map
+            </Button>
+          </Link>
         </div>
         {process.env.NODE_ENV === 'development' && (
           <details className="mt-4 text-left">
-            <summary className="cursor-pointer text-sm text-muted-foreground">
+            <summary 
+              className="cursor-pointer text-sm text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-1"
+              tabIndex={0}
+            >
               Error Details (Development)
             </summary>
-            <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto">
-              {error.message}
-              {error.stack && `\n\n${error.stack}`}
-            </pre>
+            <div 
+              className="mt-2 text-xs bg-muted p-2 rounded overflow-auto"
+              role="region"
+              aria-label="Error details"
+            >
+              <p className="font-medium mb-1">Error ID: {errorId}</p>
+              <p>{error.message}</p>
+              {error.stack && (
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-xs">Stack trace</summary>
+                  <pre className="mt-1 text-xs opacity-75">{error.stack}</pre>
+                </details>
+              )}
+            </div>
           </details>
         )}
       </div>

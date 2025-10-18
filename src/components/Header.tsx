@@ -8,6 +8,7 @@ import { MapPin, LogOut, User, Globe, Menu, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { useAuth, useLogout } from '@/lib/hooks/useAuth'
 import { cn } from '@/lib/utils'
 
@@ -109,6 +110,8 @@ export function Header() {
             </TooltipContent>
           </Tooltip>
 
+          <ThemeToggle size="sm" />
+
           {user ? (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -149,7 +152,7 @@ export function Header() {
         </nav>
 
         {/* Mobile Menu */}
-        <div className="md:hidden flex items-center gap-2">
+        <div className="md:hidden flex items-center gap-1">
           {!user && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -158,6 +161,7 @@ export function Header() {
                     variant="ghost"
                     size="icon"
                     aria-label={t('nav.login') || 'Login'}
+                    className="min-h-[44px] min-w-[44px]"
                   >
                     <User className="h-5 w-5" aria-hidden="true" />
                     <span className="sr-only">{t('nav.login') || 'Login'}</span>
@@ -177,7 +181,7 @@ export function Header() {
                 size="sm"
                 onClick={toggleLanguage}
                 aria-label={`Switch to ${i18n.language === 'en' ? 'Hebrew' : 'English'}`}
-                className="gap-2"
+                className="gap-2 min-h-[44px] px-3"
               >
                 <Globe className="h-4 w-4" aria-hidden="true" />
                 <span className="font-semibold text-xs uppercase">
@@ -199,6 +203,7 @@ export function Header() {
                         variant="ghost"
                         size="icon"
                         aria-label={t('nav.menu') || 'Open navigation menu'}
+                        className="min-h-[44px] min-w-[44px]"
                       >
                         <Menu className="h-5 w-5" aria-hidden="true" />
                         <span className="sr-only">{t('nav.menu') || 'Open navigation menu'}</span>
@@ -209,16 +214,16 @@ export function Header() {
                     </TooltipContent>
                   </Tooltip>
                 </SheetTrigger>
-            <SheetContent side="right">
-              <SheetHeader>
-                <SheetTitle>{t('map.title')}</SheetTitle>
+            <SheetContent side="right" className="w-full sm:w-80">
+              <SheetHeader className="pb-4">
+                <SheetTitle className="text-left">{t('map.title')}</SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-4 mt-8" role="navigation" aria-label="Main navigation">
+              <nav className="flex flex-col gap-2 mt-4" role="navigation" aria-label="Main navigation">
                 <Link
                   href="/map"
                   className={cn(
-                    'text-lg font-medium transition-colors hover:text-primary py-2',
-                    pathname === '/map' ? 'text-foreground' : 'text-muted-foreground'
+                    'text-lg font-medium transition-colors hover:text-primary py-3 px-2 rounded-md min-h-[44px] flex items-center',
+                    pathname === '/map' ? 'text-foreground bg-muted' : 'text-muted-foreground hover:bg-muted/50'
                   )}
                   aria-current={pathname === '/map' ? 'page' : undefined}
                 >
@@ -230,8 +235,8 @@ export function Header() {
                     <Link
                       href="/submit"
                       className={cn(
-                        'text-lg font-medium transition-colors hover:text-primary py-2',
-                        pathname === '/submit' ? 'text-foreground' : 'text-muted-foreground'
+                        'text-lg font-medium transition-colors hover:text-primary py-3 px-2 rounded-md min-h-[44px] flex items-center',
+                        pathname === '/submit' ? 'text-foreground bg-muted' : 'text-muted-foreground hover:bg-muted/50'
                       )}
                       aria-current={pathname === '/submit' ? 'page' : undefined}
                     >
@@ -240,12 +245,12 @@ export function Header() {
                     <Link
                       href="/favorites"
                       className={cn(
-                        'text-lg font-medium transition-colors hover:text-primary py-2',
-                        pathname === '/favorites' ? 'text-foreground' : 'text-muted-foreground'
+                        'text-lg font-medium transition-colors hover:text-primary py-3 px-2 rounded-md min-h-[44px] flex items-center',
+                        pathname === '/favorites' ? 'text-foreground bg-muted' : 'text-muted-foreground hover:bg-muted/50'
                       )}
                       aria-current={pathname === '/favorites' ? 'page' : undefined}
                     >
-                      <Heart className="h-5 w-5 inline mr-2" aria-hidden="true" />
+                      <Heart className="h-5 w-5 mr-3" aria-hidden="true" />
                       {t('nav.favorites', 'Favorites')}
                     </Link>
                   </>
@@ -255,8 +260,8 @@ export function Header() {
                   <Link
                     href="/admin"
                     className={cn(
-                      'text-lg font-medium transition-colors hover:text-primary py-2',
-                      pathname === '/admin' ? 'text-foreground' : 'text-muted-foreground'
+                      'text-lg font-medium transition-colors hover:text-primary py-3 px-2 rounded-md min-h-[44px] flex items-center',
+                      pathname === '/admin' ? 'text-foreground bg-muted' : 'text-muted-foreground hover:bg-muted/50'
                     )}
                     aria-current={pathname === '/admin' ? 'page' : undefined}
                   >
@@ -264,11 +269,16 @@ export function Header() {
                   </Link>
                 )}
 
-                <div className="border-t pt-4 mt-4">
+                <div className="border-t pt-4 mt-4 space-y-4">
+                  <div className="flex items-center justify-between px-2">
+                    <span className="text-sm font-medium text-muted-foreground">Theme</span>
+                    <ThemeToggle showLabel={true} size="sm" />
+                  </div>
+                  
                   {user ? (
                     <Button
                       variant="outline"
-                      className="w-full justify-start"
+                      className="w-full justify-start min-h-[44px]"
                       onClick={() => logout.mutate()}
                       disabled={logout.isPending}
                       aria-label={t('nav.logout') || 'Logout'}
@@ -280,7 +290,7 @@ export function Header() {
                     <Link href="/login">
                       <Button
                         variant="outline"
-                        className="w-full justify-start"
+                        className="w-full justify-start min-h-[44px]"
                         aria-label={t('nav.login') || 'Login'}
                       >
                         <User className="h-4 w-4 mr-2" aria-hidden="true" />

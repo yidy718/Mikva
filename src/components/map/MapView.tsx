@@ -1,18 +1,16 @@
 'use client'
 
-import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
-import Map, { Marker, Popup, NavigationControl, GeolocateControl } from 'react-map-gl'
+import { useRef, useState } from 'react'
+import Map, { NavigationControl, GeolocateControl } from 'react-map-gl'
 import type { MapRef } from 'react-map-gl'
-import Supercluster from 'supercluster'
-import { MapPin, Search, X, List, Map as MapIcon } from 'lucide-react'
 import { geocodingService, type GeocodingResult } from '@/lib/geocoding'
-import { AddressInput } from '@/components/ui/address-input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { MikvahListView } from './MikvahListView'
 import { MikvahDetailsModal } from './MikvahDetailsModal'
-import { MikvahMarker, ClusterMarker } from './MikvahMarker'
+import { MapControls } from './MapControls'
+import { MapMarkers } from './MapMarkers'
 import { FilterPanel, type FilterOptions } from './FilterPanel'
+import { useMapClustering } from '@/lib/hooks/useMapClustering'
+import { useMapFiltering } from '@/lib/hooks/useMapFiltering'
 import type { Mikvah } from '@/lib/types'
 
 interface MapViewProps {
@@ -41,7 +39,6 @@ export function MapView({
     zoom: 2,
   })
   const [selectedMikvah, setSelectedMikvah] = useState<Mikvah | null>(null)
-  const [clusters, setClusters] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearching, setIsSearching] = useState(false)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
@@ -55,137 +52,13 @@ export function MapView({
 
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ''
 
-  // Filter and sort mikvahs
-  const filteredMikvahs = useMemo(() => {
-    let result = [...mikvahs]
-
-    // Filter by type
-    if (filters.types.length > 0) {
-      result = result.filter(m => filters.types.includes(m.mikvah_type))
-    }
-
-    // Filter by search query
-    if (filters.searchQuery) {
-      const query = filters.searchQuery.toLowerCase()
-      result = result.filter(m =>
-        m.name_en?.toLowerCase().includes(query) ||
-        m.name_he?.toLowerCase().includes(query) ||
-        m.address?.toLowerCase().includes(query)
-      )
-    }
-
-    // Sort
-    switch (filters.sortBy) {
-      case 'name':
-        result.sort((a, b) => (a.name_en || '').localeCompare(b.name_en || ''))
-        break
-      case 'newest':
-        result.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
-        break
-      case 'nearest':
-      default:
-        // Would need user's location for this - for now just use as-is
-        break
-    }
-
-    return result
-  }, [mikvahs, filters])
-
-  // Create supercluster index (memoized to prevent recreation on every render)
-  const supercluster = useRef(
-    new Supercluster({
-      radius: 75,
-      maxZoom: 16,
-    })
-  )
-
-  useEffect(() => {
-    // Convert filtered mikvahs to GeoJSON points
-    const points = filteredMikvahs.map((mikvah) => ({
-      type: 'Feature' as const,
-      properties: { cluster: false, mikvah },
-      geometry: {
-        type: 'Point' as const,
-        coordinates: [mikvah.longitude, mikvah.latitude],
-      },
-    }))
-
-    supercluster.current.load(points)
-  }, [filteredMikvahs])
-
-  const updateClusters = useCallback(() => {
-    if (!mapRef.current) return
-
-    const map = mapRef.current.getMap()
-    const bounds = map.getBounds()
-    if (!bounds) return
-
-    const zoom = Math.floor(viewState.zoom)
-
-    const clusters = supercluster.current.getClusters(
-      [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
-      zoom
-    )
-
-    setClusters(clusters)
-  }, [viewState.zoom])
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      updateClusters()
-    }, 100)
-    return () => clearTimeout(timer)
-  }, [viewState.longitude, viewState.latitude, viewState.zoom, updateClusters])
-
-  const handleClusterClick = (clusterId: number, longitude: number, latitude: number) => {
-    const expansionZoom = Math.min(
-      supercluster.current.getClusterExpansionZoom(clusterId),
-      20
-    )
-
-    setViewState({
-      ...viewState,
-      longitude,
-      latitude,
-      zoom: expansionZoom,
-    })
-  }
-
-  const handleMarkerClick = (mikvah: Mikvah) => {
-    handleMikvahClick(mikvah)
-  }
-
-  const handleSearch = async (query: string) => {
-    if (!query.trim()) return
-
-    setIsSearching(true)
-    try {
-      const results = await geocodingService.searchAddress(query, {
-        proximity: [viewState.longitude, viewState.latitude],
-        types: ['address', 'poi'],
-        limit: 1,
-      })
-
-      if (results.length > 0) {
-        const result = results[0]
-        const [lng, lat] = result.center
-        
-        setViewState({
-          longitude: lng,
-          latitude: lat,
-          zoom: 15,
-        })
-
-        if (onLocationSelect) {
-          onLocationSelect(result)
-        }
-      }
-    } catch (error) {
-      console.error('Search error:', error)
-    } finally {
-      setIsSearching(false)
-    }
-  }
+  // Use custom hooks for filtering and clustering
+  const { filteredMikvahs } = useMapFiltering({ mikvahs, filters })
+  const { clusters, handleClusterClick } = useMapClustering({ 
+    mikvahs: filteredMikvahs, 
+    viewState, 
+    mapRef 
+  })
 
   const handleLocationSelect = (result: GeocodingResult) => {
     const [lng, lat] = result.center
@@ -250,81 +123,36 @@ export function MapView({
     window.open(url, '_blank')
   }
 
+  const handleClusterClickWithViewState = (clusterId: number, longitude: number, latitude: number) => {
+    const newViewState = handleClusterClick(clusterId, longitude, latitude)
+    setViewState(prev => ({ ...prev, ...newViewState }))
+  }
+
   return (
     <div className="relative w-full h-full">
-      {/* View Mode Toggle */}
-      <div className="absolute top-4 left-4 z-10">
-        <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-1">
-          <div className="flex">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => setViewMode('map')}
-                  className={`px-3 py-2 text-sm rounded-md transition-colors ${
-                    viewMode === 'map'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-muted'
-                  }`}
-                >
-                  <MapIcon className="h-4 w-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Map View</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`px-3 py-2 text-sm rounded-md transition-colors ${
-                    viewMode === 'list'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-muted'
-                  }`}
-                >
-                  <List className="h-4 w-4" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>List View</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-      </div>
-
-      {showSearch && (
-        <div className="absolute top-4 left-20 sm:left-24 right-4 sm:max-w-md z-10">
-          <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-2">
-            <AddressInput
-              value={searchQuery}
-              onChange={(value) => {
-                setSearchQuery(value)
-                if (value.trim()) {
-                  handleSearch(value)
-                }
-              }}
-              onLocationSelect={handleLocationSelect}
-              placeholder="Search for cities and places worldwide..."
-              proximity={[viewState.longitude, viewState.latitude]}
-              searchTypes={['place', 'locality', 'region', 'country']}
-            />
-          </div>
-        </div>
-      )}
+      {/* Map Controls */}
+      <MapControls
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onLocationSelect={handleLocationSelect}
+        showSearch={showSearch}
+        proximity={[viewState.longitude, viewState.latitude]}
+        isSearching={isSearching}
+      />
 
       {/* List View */}
       {viewMode === 'list' && (
-        <div className="absolute top-16 left-4 right-4 bottom-4 bg-background rounded-lg shadow-lg border z-20 md:right-auto md:w-96">
+        <div className="absolute top-16 left-2 right-2 bottom-2 sm:left-4 sm:right-4 sm:bottom-4 bg-background rounded-lg shadow-lg border z-20 md:right-auto md:w-96 animate-slide-up">
           <div className="h-full flex flex-col">
-            <div className="p-4 border-b">
-              <h2 className="text-xl font-semibold">Mikvahs ({filteredMikvahs.length})</h2>
+            <div className="p-3 sm:p-4 border-b">
+              <h2 className="text-lg sm:text-xl font-semibold">Mikvahs ({filteredMikvahs.length})</h2>
             </div>
-            <div className="p-4 border-b">
+            <div className="p-3 sm:p-4 border-b">
               <FilterPanel filters={filters} onFiltersChange={setFilters} />
             </div>
-            <div className="flex-1 overflow-hidden px-4">
+            <div className="flex-1 overflow-hidden px-3 sm:px-4">
               <MikvahListView
                 mikvahs={filteredMikvahs}
                 onMikvahSelect={handleMikvahSelect}
@@ -352,106 +180,32 @@ export function MapView({
             mapboxAccessToken={mapboxToken}
             style={{ width: '100%', height: '100%' }}
           >
-        <NavigationControl position="top-right" />
-        <GeolocateControl position="top-right" />
+            <NavigationControl position="top-right" />
+            <GeolocateControl position="top-right" />
 
-      {/* Render clusters and individual markers */}
-      {clusters.map((cluster) => {
-        const [longitude, latitude] = cluster.geometry.coordinates
-        const { cluster: isCluster, point_count: pointCount } = cluster.properties
+            <MapMarkers
+              clusters={clusters}
+              filteredMikvahs={filteredMikvahs}
+              selectedMikvah={selectedMikvah}
+              hoveredMarkerId={hoveredMarkerId}
+              selectedLocation={selectedLocation}
+              onClusterClick={handleClusterClickWithViewState}
+              onMarkerClick={handleMikvahClick}
+              onMarkerHover={setHoveredMarkerId}
+              onPopupClose={() => setSelectedMikvah(null)}
+            />
+          </Map>
 
-        if (isCluster) {
-          const size = 30 + Math.min((pointCount / filteredMikvahs.length) * 30, 40)
-
-          return (
-            <Marker
-              key={`cluster-${cluster.id}`}
-              longitude={longitude}
-              latitude={latitude}
-              onClick={(e) => {
-                e.originalEvent.stopPropagation()
-                handleClusterClick(cluster.id, longitude, latitude)
-              }}
-            >
-              <ClusterMarker count={pointCount} size={size} />
-            </Marker>
-          )
-        }
-
-        const mikvah = cluster.properties.mikvah
-        const isSelected = selectedMikvah?.id === mikvah.id
-        const isHovered = hoveredMarkerId === mikvah.id
-
-        return (
-          <Marker
-            key={`mikvah-${mikvah.id}`}
-            longitude={longitude}
-            latitude={latitude}
-            onClick={(e) => {
-              e.originalEvent.stopPropagation()
-              handleMarkerClick(mikvah)
-            }}
-          >
-            <div
-              className="cursor-pointer transition-all duration-200 hover:scale-125 hover:-translate-y-1"
-              onMouseEnter={() => setHoveredMarkerId(mikvah.id)}
-              onMouseLeave={() => setHoveredMarkerId(null)}
-            >
-              <MikvahMarker
-                type={mikvah.mikvah_type}
-                isSelected={isSelected}
-                isHovered={isHovered}
-              />
+          {/* Loading Overlay */}
+          {isLoading && (
+            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10">
+              <div className="text-center animate-fade-in">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                <p className="text-sm text-muted-foreground">Loading map...</p>
+              </div>
             </div>
-          </Marker>
-        )
-      })}
-
-      {/* Selected location marker (for submission form) */}
-      {selectedLocation && (
-        <Marker
-          longitude={selectedLocation.lng}
-          latitude={selectedLocation.lat}
-        >
-          <div className="animate-bounce">
-            <MikvahMarker type="separate_hours" isSelected={true} />
-          </div>
-        </Marker>
-      )}
-
-      {/* Popup for selected mikvah */}
-      {selectedMikvah && (
-        <Popup
-          longitude={selectedMikvah.longitude}
-          latitude={selectedMikvah.latitude}
-          onClose={() => setSelectedMikvah(null)}
-          closeButton={true}
-          closeOnClick={false}
-        >
-          <div className="p-2">
-            <h3 className="font-semibold">{selectedMikvah.name_en}</h3>
-            {selectedMikvah.name_he && (
-              <p className="text-sm text-muted-foreground">{selectedMikvah.name_he}</p>
-            )}
-            <p className="text-sm mt-2">{selectedMikvah.address}</p>
-            {selectedMikvah.phone && (
-              <p className="text-sm">{selectedMikvah.phone}</p>
-            )}
-          </div>
-        </Popup>
-      )}
-      </Map>
-
-      {/* Loading Overlay */}
-      {isLoading && (
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-            <p className="text-sm text-muted-foreground">Loading map...</p>
-          </div>
+          )}
         </div>
-      )}
-      </div>
       )}
 
       {/* Details Modal */}
