@@ -92,7 +92,7 @@ export function MapControls({
 
       {/* Search Bar */}
       {showSearch && (
-        <div className="absolute top-4 left-20 sm:left-24 right-4 sm:max-w-md z-10">
+        <div className="absolute top-4 left-4 right-4 sm:left-28 sm:max-w-md z-10 mt-16 sm:mt-0">
           <div className="bg-background/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-2">
             <AddressInput
               value={searchQuery}
