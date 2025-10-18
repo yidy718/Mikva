@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { CheckCircle, Shield } from 'lucide-react'
@@ -21,11 +21,7 @@ export function VerifyButton({ mikvahId, verificationCount, onVerified }: Verify
   const [localCount, setLocalCount] = useState(verificationCount)
   const supabase = createClient()
 
-  useEffect(() => {
-    checkVerificationStatus()
-  }, [mikvahId])
-
-  const checkVerificationStatus = async () => {
+  const checkVerificationStatus = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
@@ -37,7 +33,11 @@ export function VerifyButton({ mikvahId, verificationCount, onVerified }: Verify
       .single()
 
     setHasVerified(!!data)
-  }
+  }, [mikvahId, supabase])
+
+  useEffect(() => {
+    checkVerificationStatus()
+  }, [checkVerificationStatus])
 
   const handleVerify = async () => {
     setIsLoading(true)

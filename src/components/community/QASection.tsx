@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
@@ -72,12 +72,7 @@ export function QASection({ mikvahId }: QASectionProps) {
     resolver: zodResolver(answerSchema),
   })
 
-  useEffect(() => {
-    loadQuestions()
-    loadUserVotes()
-  }, [mikvahId])
-
-  const loadQuestions = async () => {
+  const loadQuestions = useCallback(async () => {
     setIsLoading(true)
     const { data, error } = await supabase
       .from('mikvah_questions')
@@ -92,9 +87,9 @@ export function QASection({ mikvahId }: QASectionProps) {
       setQuestions(data as any)
     }
     setIsLoading(false)
-  }
+  }, [mikvahId, supabase])
 
-  const loadUserVotes = async () => {
+  const loadUserVotes = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
@@ -110,7 +105,12 @@ export function QASection({ mikvahId }: QASectionProps) {
       })
       setUserVotes(votes)
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    loadQuestions()
+    loadUserVotes()
+  }, [loadQuestions, loadUserVotes])
 
   const onSubmitQuestion = async (data: QuestionFormData) => {
     try {

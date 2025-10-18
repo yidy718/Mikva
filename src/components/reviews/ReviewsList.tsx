@@ -29,11 +29,6 @@ export function ReviewsList({ mikvahId }: ReviewsListProps) {
   const [userVotes, setUserVotes] = useState<Record<string, boolean>>({})
   const supabase = createClient()
 
-  useEffect(() => {
-    loadReviews()
-    loadUserVotes()
-  }, [mikvahId, loadReviews, loadUserVotes])
-
   const loadReviews = useCallback(async () => {
     setIsLoading(true)
     const { data, error } = await supabase
@@ -68,6 +63,11 @@ export function ReviewsList({ mikvahId }: ReviewsListProps) {
       setUserVotes(votes)
     }
   }, [supabase])
+
+  useEffect(() => {
+    loadReviews()
+    loadUserVotes()
+  }, [loadReviews, loadUserVotes])
 
   const handleVote = async (reviewId: string, isHelpful: boolean) => {
     const { data: { user } } = await supabase.auth.getUser()

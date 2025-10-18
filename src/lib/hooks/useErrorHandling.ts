@@ -41,7 +41,7 @@ export function useErrorHandling(options: ErrorHandlingOptions = {}) {
     customOptions?: Partial<ErrorHandlingOptions>
   ) => {
     const errorMessage = typeof error === 'string' ? error : error.message
-    const errorCode = typeof error === 'object' && 'code' in error ? error.code : undefined
+    const errorCode = typeof error === 'object' && 'code' in error ? String(error.code) : undefined
     
     const errorInfo: ErrorInfo = {
       message: errorMessage,

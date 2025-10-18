@@ -42,7 +42,7 @@ export function useMemoizedCallback<T extends (...args: any[]) => any>(
   callback: T,
   deps: React.DependencyList
 ): T {
-  return useCallback((...args: any[]) => callback(...args), deps)
+  return useCallback(callback, deps) as T
 }
 
 // Memoized value hook with custom equality function
