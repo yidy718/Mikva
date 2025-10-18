@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Search, MapPin, Loader2 } from 'lucide-react'
 import { Input } from './input'
 import { Button } from './button'
@@ -44,8 +44,8 @@ export function AddressInput({
   const suggestionsRef = useRef<HTMLDivElement>(null)
 
   // Debounced search function
-  const debouncedSearch = useCallback(
-    debounce(async (query: string) => {
+  const debouncedSearch = useMemo(
+    () => debounce(async (query: string) => {
       if (query.length < 2) {
         setSuggestions([])
         setIsLoading(false)
@@ -75,7 +75,7 @@ export function AddressInput({
         setIsLoading(false)
       }
     }, 300),
-    [country, proximity]
+    [country, proximity, searchTypes]
   )
 
   useEffect(() => {

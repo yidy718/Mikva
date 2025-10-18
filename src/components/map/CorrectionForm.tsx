@@ -317,6 +317,7 @@ export function CorrectionForm({ mikvah, isOpen, onClose }: CorrectionFormProps)
                 <div className="grid grid-cols-3 gap-2 mt-2">
                   {photos.map((photo, index) => (
                     <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={URL.createObjectURL(photo)}
                         alt={`Preview ${index + 1}`}

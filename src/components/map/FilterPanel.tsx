@@ -146,8 +146,9 @@ export function FilterPanel({ filters, onFiltersChange, className }: FilterPanel
                 <Badge
                   key={type.value}
                   variant={filters.types.includes(type.value) ? 'default' : 'outline'}
-                  className="cursor-pointer text-xs"
+                  className="cursor-pointer text-xs touch-target"
                   onClick={() => toggleType(type.value)}
+                  data-filter-badge
                 >
                   {type.label}
                   {filters.types.includes(type.value) && (
@@ -182,20 +183,20 @@ export function FilterPanel({ filters, onFiltersChange, className }: FilterPanel
             {filters.types.map(type => {
               const typeLabel = mikvahTypes.find(t => t.value === type)?.label
               return (
-                <Badge key={type} variant="secondary" className="cursor-pointer text-xs" onClick={() => toggleType(type)}>
+                <Badge key={type} variant="secondary" className="cursor-pointer text-xs" onClick={() => toggleType(type)} data-filter-badge>
                   {typeLabel}
                   <X className="h-3 w-3 ml-1" />
                 </Badge>
               )
             })}
             {filters.searchQuery && (
-              <Badge variant="secondary" className="cursor-pointer text-xs" onClick={() => onFiltersChange({ ...filters, searchQuery: '' })}>
+              <Badge variant="secondary" className="cursor-pointer text-xs" onClick={() => onFiltersChange({ ...filters, searchQuery: '' })} data-filter-badge>
                 Search: {filters.searchQuery}
                 <X className="h-3 w-3 ml-1" />
               </Badge>
             )}
             {filters.maxDistance && (
-              <Badge variant="secondary" className="cursor-pointer text-xs" onClick={() => onFiltersChange({ ...filters, maxDistance: undefined })}>
+              <Badge variant="secondary" className="cursor-pointer text-xs" onClick={() => onFiltersChange({ ...filters, maxDistance: undefined })} data-filter-badge>
                 Within {filters.maxDistance}km
                 <X className="h-3 w-3 ml-1" />
               </Badge>

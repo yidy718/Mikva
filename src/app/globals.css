@@ -85,6 +85,18 @@
   border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
+/* Hide scrollbar but allow scrolling */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+}
+
 /* Mobile Touch Targets - Minimum 44px for better accessibility */
 @media (max-width: 768px) {
   /* Ensure all buttons have minimum touch target */
@@ -111,5 +123,28 @@
   .mapboxgl-marker button {
     min-width: 44px;
     min-height: 44px;
+  }
+
+  /* Mapbox controls - larger for mobile */
+  .mapboxgl-ctrl-group > button {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .mapboxgl-ctrl-geolocate {
+    width: 44px;
+    height: 44px;
+  }
+
+  .mapboxgl-ctrl-icon {
+    transform: scale(1.3);
+  }
+
+  /* Filter badges - larger touch targets */
+  [data-filter-badge] {
+    min-height: 36px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
   }
 }

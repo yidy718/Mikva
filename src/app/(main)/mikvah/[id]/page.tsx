@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
@@ -19,13 +19,7 @@ export default function MikvahDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const supabase = createClient()
 
-  useEffect(() => {
-    if (params.id) {
-      loadMikvah(params.id as string)
-    }
-  }, [params.id])
-
-  const loadMikvah = async (id: string) => {
+  const loadMikvah = useCallback(async (id: string) => {
     setIsLoading(true)
     const { data, error } = await supabase
       .from('mikvahs')
@@ -39,7 +33,13 @@ export default function MikvahDetailPage() {
       setMikvah(data)
     }
     setIsLoading(false)
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    if (params.id) {
+      loadMikvah(params.id as string)
+    }
+  }, [params.id, loadMikvah])
 
   const handleGetDirections = () => {
     if (!mikvah) return

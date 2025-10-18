@@ -329,6 +329,7 @@ export default function SubmitPage() {
                   <div className="grid grid-cols-3 gap-4">
                     {photos.map((photo, idx) => (
                       <div key={idx} className="relative aspect-square group">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={URL.createObjectURL(photo)}
                           alt={`Preview ${idx + 1}`}
