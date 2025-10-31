@@ -63,8 +63,6 @@ A modern web application for finding and submitting mikvah locations worldwide w
 
 ### Installation
 
-1. Clone the repository:
-```bash
 git clone https://github.com/yidy718/Mikva.git
 cd Mikva
 ```
