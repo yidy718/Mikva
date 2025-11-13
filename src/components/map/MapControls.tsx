@@ -48,16 +48,16 @@ export function MapControls({
     <>
       {/* View Mode Toggle */}
       <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 animate-slide-down">
-        <div className="bg-background/90 dark:bg-background/80 backdrop-blur-md border border-border/50 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-0.5">
-          <div className="flex gap-0.5">
+        <div className="bg-card/95 backdrop-blur-xl border border-border/60 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-1">
+          <div className="flex gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   onClick={() => onViewModeChange('map')}
-                  className={`px-3 py-2 text-sm rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center group ${
+                  className={`px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center group ${
                     viewMode === 'map'
-                      ? 'bg-primary text-primary-foreground shadow-md scale-105'
-                      : 'hover:bg-muted/80 hover:scale-105'
+                      ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/25 scale-[1.02]'
+                      : 'hover:bg-primary/10 hover:text-primary'
                   }`}
                   aria-label="Map View"
                 >
@@ -72,10 +72,10 @@ export function MapControls({
               <TooltipTrigger asChild>
                 <button
                   onClick={() => onViewModeChange('list')}
-                  className={`px-3 py-2 text-sm rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center group ${
+                  className={`px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center group ${
                     viewMode === 'list'
-                      ? 'bg-primary text-primary-foreground shadow-md scale-105'
-                      : 'hover:bg-muted/80 hover:scale-105'
+                      ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/25 scale-[1.02]'
+                      : 'hover:bg-primary/10 hover:text-primary'
                   }`}
                   aria-label="List View"
                 >
@@ -93,7 +93,7 @@ export function MapControls({
       {/* Search Bar */}
       {showSearch && (
         <div className="absolute top-[68px] left-3 right-16 sm:top-4 sm:left-28 sm:right-auto sm:max-w-md z-10 animate-slide-down">
-          <div className="bg-background/90 dark:bg-background/80 backdrop-blur-md border border-border/50 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 px-1 py-0.5 sm:px-1.5 sm:py-1">
+          <div className="bg-card/95 backdrop-blur-xl border border-border/60 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 px-2 py-1.5 sm:px-2.5 sm:py-2">
             <AddressInput
               value={searchQuery}
               onChange={(value) => {
