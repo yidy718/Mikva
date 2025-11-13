@@ -24,20 +24,30 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        <Link href="/map" className="flex items-center gap-2 font-semibold" aria-label={t('nav.home') || 'Home - Mikvah Locator'}>
-          <MapPin className="h-6 w-6" aria-hidden="true" />
-          <span className="hidden sm:inline">{t('map.title')}</span>
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
+      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+        <Link
+          href="/map"
+          className="flex items-center gap-2.5 font-bold text-lg transition-all duration-300 hover:text-primary group"
+          aria-label={t('nav.home') || 'Home - Mikvah Locator'}
+        >
+          <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+            <MapPin className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <span className="hidden sm:inline bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            {t('map.title')}
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-4">
+        <nav className="hidden md:flex items-center gap-1.5">
           <Link
             href="/map"
             className={cn(
-              'text-sm font-medium transition-colors hover:text-primary',
-              pathname === '/map' ? 'text-foreground' : 'text-muted-foreground'
+              'px-3.5 py-2 text-sm font-medium rounded-lg transition-all duration-300 hover:bg-primary/10',
+              pathname === '/map'
+                ? 'text-primary bg-primary/10 shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
             )}
             aria-current={pathname === '/map' ? 'page' : undefined}
           >
@@ -49,10 +59,10 @@ export function Header() {
               <Link
                 href="/submit"
                 className={cn(
-                  'text-sm font-medium transition-colors hover:text-primary',
+                  'px-3.5 py-2 text-sm font-medium rounded-lg transition-all duration-300 hover:bg-primary/10',
                   pathname === '/submit'
-                    ? 'text-foreground'
-                    : 'text-muted-foreground'
+                    ? 'text-primary bg-primary/10 shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
                 aria-current={pathname === '/submit' ? 'page' : undefined}
               >
@@ -61,14 +71,14 @@ export function Header() {
               <Link
                 href="/favorites"
                 className={cn(
-                  'text-sm font-medium transition-colors hover:text-primary',
+                  'px-3.5 py-2 text-sm font-medium rounded-lg transition-all duration-300 hover:bg-primary/10 flex items-center gap-1.5',
                   pathname === '/favorites'
-                    ? 'text-foreground'
-                    : 'text-muted-foreground'
+                    ? 'text-primary bg-primary/10 shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
                 aria-current={pathname === '/favorites' ? 'page' : undefined}
               >
-                <Heart className="h-4 w-4 inline mr-1" aria-hidden="true" />
+                <Heart className="h-4 w-4" aria-hidden="true" />
                 {t('nav.favorites', 'Favorites')}
               </Link>
             </>
@@ -78,16 +88,18 @@ export function Header() {
             <Link
               href="/admin"
               className={cn(
-                'text-sm font-medium transition-colors hover:text-primary',
+                'px-3.5 py-2 text-sm font-medium rounded-lg transition-all duration-300 hover:bg-primary/10',
                 pathname === '/admin'
-                  ? 'text-foreground'
-                  : 'text-muted-foreground'
+                  ? 'text-primary bg-primary/10 shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
               aria-current={pathname === '/admin' ? 'page' : undefined}
             >
               {t('nav.admin')}
             </Link>
           )}
+
+          <div className="h-5 w-px bg-border/60 mx-2" />
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -96,7 +108,7 @@ export function Header() {
                 size="sm"
                 onClick={toggleLanguage}
                 aria-label={`Switch to ${i18n.language === 'en' ? 'Hebrew' : 'English'}`}
-                className="gap-2"
+                className="gap-2 hover:bg-primary/10 hover:text-primary rounded-lg transition-all duration-300"
               >
                 <Globe className="h-4 w-4" aria-hidden="true" />
                 <span className="font-semibold text-xs uppercase">
@@ -121,6 +133,7 @@ export function Header() {
                   onClick={() => logout.mutate()}
                   disabled={logout.isPending}
                   aria-label={t('nav.logout') || 'Logout'}
+                  className="hover:bg-destructive/10 hover:text-destructive rounded-lg transition-all duration-300"
                 >
                   <LogOut className="h-5 w-5" aria-hidden="true" />
                   <span className="sr-only">{t('nav.logout') || 'Logout'}</span>
@@ -138,6 +151,7 @@ export function Header() {
                     variant="ghost"
                     size="icon"
                     aria-label={t('nav.login') || 'Login'}
+                    className="hover:bg-primary/10 hover:text-primary rounded-lg transition-all duration-300 hover:shadow-sm"
                   >
                     <User className="h-5 w-5" aria-hidden="true" />
                     <span className="sr-only">{t('nav.login') || 'Login'}</span>
@@ -152,7 +166,7 @@ export function Header() {
         </nav>
 
         {/* Mobile Menu */}
-        <div className="md:hidden flex items-center gap-1">
+        <div className="md:hidden flex items-center gap-2">
           {!user && (
             <Tooltip>
               <TooltipTrigger asChild>
